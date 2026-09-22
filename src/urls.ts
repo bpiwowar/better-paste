@@ -50,3 +50,8 @@ export const WELCOME_IMAGE_URL = `${RAW_BASE_URL}/images/welcome.gif`;
 export function releaseBannerUrl(file: string): string {
     return `${RAW_BASE_URL}/images/version-banners/${file}`;
 }
+
+/** The GitHub release page of one version. Releases are tagged with the bare version. */
+export function releasePageUrl(version: string): string {
+    return `https://github.com/${REPOSITORY}/releases/tag/${version}`;
+}

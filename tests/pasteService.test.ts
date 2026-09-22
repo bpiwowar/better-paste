@@ -1353,9 +1353,19 @@ describe('handleEditorPaste: link titles', () => {
     });
 
     it.each([
-        ['a heading marker', '# H1', 0, '[Example page](https://example.com/page)# H1'],
-        ['a tag in a list item', '- #tag', 2, '- [Example page](https://example.com/page)#tag']
-    ])('fetches a title before %s', async (_case, content, cursor, expected) => {
+        ['before a heading marker', '# H1', 0, '[Example page](https://example.com/page)# H1'],
+        ['before a tag in a list item', '- #tag', 2, '- [Example page](https://example.com/page)#tag'],
+        ['before plain text', 'Line 1 with unformatted text', 0, '[Example page](https://example.com/page)Line 1 with unformatted text'],
+        ['inside brackets', '[]', 1, '[[Example page](https://example.com/page)]'],
+        ['inside parentheses', '()', 1, '([Example page](https://example.com/page))'],
+        ['inside bold markers', '****', 2, '**[Example page](https://example.com/page)**'],
+        ['inside a comment', '%%%%', 2, '%%[Example page](https://example.com/page)%%'],
+        ['before a full stop', '.', 0, '[Example page](https://example.com/page).'],
+        ['before a comma', ',', 0, '[Example page](https://example.com/page),'],
+        ['before a question mark', '?', 0, '[Example page](https://example.com/page)?'],
+        ['before a colon and text', ': notes', 0, '[Example page](https://example.com/page): notes'],
+        ['after a word without a space', 'see', 3, 'see[Example page](https://example.com/page)']
+    ])('fetches a title %s', async (_case, content, cursor, expected) => {
         const { service } = build({ linkTitles: true, linkEnabled: false });
         const editor = new FakeEditor(content, cursor);
 
@@ -1365,15 +1375,93 @@ describe('handleEditorPaste: link titles', () => {
         expect(editor.getValue()).toBe(expected);
     });
 
-    it.each(['/docs', '?query=open'])('keeps an existing URL suffix outside title replacement: %s', async suffix => {
+    it.each(['', 'Line 1 with unformatted text'])('keeps a URL suffix typed before the original following text: %j', async content => {
         const { service } = build({ linkTitles: true, linkEnabled: false });
         const url = 'https://example.com/page';
-        const editor = new FakeEditor(suffix, 0);
+        const editor = new FakeEditor(content, 0);
+
+        service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+        expect(editor.getValue()).toBe(`${url}${content}`);
+        editor.replaceSelection('/docs');
+        await settle();
+
+        expect(editor.getValue()).toBe(`${url}/docs${content}`);
+    });
+
+    it('keeps a URL pasted after an equals sign bare', async () => {
+        const { service } = build({ linkTitles: true, linkEnabled: false });
+        const url = 'https://example.com/page';
+        const editor = new FakeEditor('?u=', 3);
 
         service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
         await settle();
 
-        expect(editor.getValue()).toBe(`${url}${suffix}`);
+        expect(editor.getValue()).toBe(`?u=${url}`);
+    });
+
+    it('keeps a URL pasted after an archive prefix bare', async () => {
+        const { service } = build({ linkTitles: true, linkEnabled: false });
+        const url = 'https://example.com/page';
+        const prefix = 'https://web.archive.org/web/20260101/';
+        const editor = new FakeEditor(prefix, prefix.length);
+
+        service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+        await settle();
+
+        expect(editor.getValue()).toBe(`${prefix}${url}`);
+    });
+
+    it.each(['/docs', '?query=open', ':8080/docs', '&lang=en'])(
+        'keeps an existing URL suffix outside title replacement: %s',
+        async suffix => {
+            const { service } = build({ linkTitles: true, linkEnabled: false });
+            const url = 'https://example.com/page';
+            const editor = new FakeEditor(suffix, 0);
+
+            service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+            await settle();
+
+            expect(editor.getValue()).toBe(`${url}${suffix}`);
+        }
+    );
+
+    it('keeps a URL pasted inside an empty Markdown link label bare', async () => {
+        const { service, fetchedTitles } = build({ linkTitles: true, linkEnabled: false });
+        const editor = new FakeEditor('[](https://destination.example)', 1);
+        const url = 'https://example.com/page';
+
+        const handled = service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+        if (!handled) editor.replaceSelection(url);
+        await settle();
+
+        expect(editor.getValue()).toBe('[https://example.com/page](https://destination.example)');
+        expect(fetchedTitles).toEqual([]);
+    });
+
+    it('does not fetch a title inside an existing Markdown link label with text', async () => {
+        const { service, fetchedTitles } = build({ linkTitles: true });
+        const editor = new FakeEditor('[source](https://destination.example)', 1);
+        const url = 'https://example.com/page';
+
+        const handled = service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+        if (!handled) editor.replaceSelection(url);
+        await settle();
+
+        expect(editor.getValue()).toBe('[https://example.com/pagesource](https://destination.example)');
+        expect(fetchedTitles).toEqual([]);
+    });
+
+    it('does not fetch a title inside a wikilink alias', async () => {
+        const { service, fetchedTitles } = build({ linkTitles: true });
+        const editor = new FakeEditor('[[Note|]]', 7);
+        const url = 'https://example.com/page';
+
+        const handled = service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+        if (!handled) editor.replaceSelection(url);
+        await settle();
+
+        expect(editor.getValue()).toBe('[[Note|https://example.com/page]]');
+        expect(fetchedTitles).toEqual([]);
     });
 
     it('does not fetch a title inside an existing Markdown link destination', async () => {

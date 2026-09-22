@@ -19,7 +19,7 @@
 import { Modal, Platform } from 'obsidian';
 import type { App } from 'obsidian';
 import { format, localeTag, strings } from '../i18n';
-import { releaseBannerUrl, SUPPORT_BUY_ME_A_COFFEE_URL } from '../urls';
+import { releaseBannerUrl, releasePageUrl, SUPPORT_BUY_ME_A_COFFEE_URL } from '../urls';
 import type { ReleaseNote } from '../releaseNotes';
 
 /** The lists under a version, in the order they are rendered. */
@@ -152,9 +152,13 @@ export class WhatsNewModal extends Modal {
 
     private renderRelease(container: HTMLElement, note: ReleaseNote): void {
         const section = container.createDiv({ cls: 'better-paste-release' });
-        section.createEl('h3', {
-            text: format(strings.whatsNew.releaseHeading, { version: note.version, date: formatReleaseDate(note.date) })
-        });
+        const heading = section.createEl('h3');
+        // The word and the version link to the release on GitHub, so notes can be copied
+        // from there. The date after them stays plain text.
+        const template = strings.whatsNew.releaseHeading;
+        const versionEnd = template.indexOf('{version}') + '{version}'.length;
+        appendLink(heading, releasePageUrl(note.version), format(template.slice(0, versionEnd), { version: note.version }));
+        heading.appendText(format(template.slice(versionEnd), { date: formatReleaseDate(note.date) }));
 
         if (note.banner) {
             const frame = section.createDiv({ cls: 'better-paste-release-banner' });

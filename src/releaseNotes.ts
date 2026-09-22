@@ -51,6 +51,16 @@ export interface ReleaseNote {
 /** Newest first. A new release goes at the top. */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.0.16',
+        date: '2026-09-22',
+        improved: [
+            'Linked each version heading in this dialog to its release on GitHub, so you can copy the notes from there [#37](https://github.com/johansan/better-paste/issues/37).'
+        ],
+        fixed: [
+            'Fixed page titles not appearing when you pasted a link directly before existing text, inside parentheses or after a word without a space [#46](https://github.com/johansan/better-paste/issues/46).'
+        ]
+    },
+    {
         version: '1.0.15',
         date: '2026-08-27',
         fixed: [

@@ -165,12 +165,37 @@ function hasMarkdownLinkLabel(text: string, close: number, lineStart: number): b
     return false;
 }
 
-/** True when the paste range sits between the parentheses of an existing Markdown link. */
-function isInsideMarkdownLinkDestination(text: string, start: number, end: number): boolean {
+/**
+ * True when [start, end) sits inside an existing Markdown link label or destination,
+ * or between "[[" and "]]" on the same line, so title formatting cannot nest a link.
+ */
+function isInsideMarkdownLink(text: string, start: number, end: number): boolean {
     const lineStart = text.lastIndexOf('\n', start - 1) + 1;
 
     for (let open = start - 1; open >= lineStart; open--) {
-        if (text[open] !== '(' || text[open - 1] !== ']' || isEscapedAt(text, open) || isEscapedAt(text, open - 1)) continue;
+        if (isEscapedAt(text, open)) continue;
+        if (text[open] === '[') {
+            const wiki = text[open + 1] === '[';
+            if (wiki && start < open + 2) continue;
+
+            let depth = 1;
+            for (let cursor = open + (wiki ? 2 : 1); cursor < text.length && text[cursor] !== '\n'; cursor++) {
+                if (isEscapedAt(text, cursor)) continue;
+                if (wiki) {
+                    if (text[cursor] === ']' && text[cursor + 1] === ']') {
+                        if (end <= cursor) return true;
+                        break;
+                    }
+                } else if (text[cursor] === '[') depth += 1;
+                else if (text[cursor] === ']' && --depth === 0) {
+                    if (text[cursor + 1] === '(' && end <= cursor) return true;
+                    break;
+                }
+            }
+            continue;
+        }
+
+        if (text[open] !== '(' || text[open - 1] !== ']' || isEscapedAt(text, open - 1)) continue;
         if (!hasMarkdownLinkLabel(text, open - 1, lineStart)) continue;
 
         let depth = 1;
@@ -192,16 +217,35 @@ function extendsUrl(char: string | undefined): boolean {
     return char !== undefined && !/[\s<>"`\\\u201C\u201D]/.test(char);
 }
 
-/** True when title replacement keeps URL-shaped neighbours intact. */
+/**
+ * Accepts unchanged pre-existing neighbours, including sentence punctuation.
+ * Refuses "=" or "/" before and "/", "?", "&" or ":" followed by a URL-continuing
+ * character after, because those can compose a larger URL. Other URL-continuing
+ * neighbours require non-empty matching recorded context, so title replacement
+ * cannot split an address edited while the title is pending.
+ */
 function titleBoundaryIntact(value: string, offset: number, range: AsyncPasteRange): boolean {
-    if (extendsUrl(range.inserted[0]) && extendsUrl(value[offset - 1])) return false;
+    if (extendsUrl(range.inserted[0]) && extendsUrl(value[offset - 1])) {
+        const context = range.beforeContext;
+        if (
+            value[offset - 1] === '=' ||
+            value[offset - 1] === '/' ||
+            context.length === 0 ||
+            value.slice(Math.max(0, offset - context.length), offset) !== context
+        )
+            return false;
+    }
 
     if (extendsUrl(range.inserted[range.inserted.length - 1]) && extendsUrl(value[offset + range.inserted.length])) {
         const start = offset + range.inserted.length;
         const context = range.afterContext;
-        // A hash already at the paste boundary starts a heading or tag. Its recorded
-        // context must still match, otherwise the address may have been extended later.
-        if (value[start] !== '#' || context.length === 0 || value.slice(start, start + context.length) !== context) return false;
+        if (
+            ((value[start] === '/' || value[start] === '?' || value[start] === '&' || value[start] === ':') &&
+                extendsUrl(value[start + 1])) ||
+            context.length === 0 ||
+            value.slice(start, start + context.length) !== context
+        )
+            return false;
     }
 
     return true;
@@ -384,7 +428,7 @@ export class PasteService {
         const quoted =
             rebased === null && settings.quoteContinuation ? continueQuotePaste(result.text, valueBefore, startOffset, endOffset) : null;
         const needsImages = this.images.hasWork(result.text);
-        const allowLinkTitle = !isInsideMarkdownLinkDestination(valueBefore, startOffset, endOffset);
+        const allowLinkTitle = !isInsideMarkdownLink(valueBefore, startOffset, endOffset);
         const needsTitle = allowLinkTitle && this.titles.hasWork(result.text);
         const needsTitleBatch = allowLinkTitle && this.titles.hasBatchWork(result.text);
         const localTitle = allowLinkTitle && settings.linkTitles ? obsidianUrlTitle(result.text) : null;
@@ -553,8 +597,8 @@ export class PasteService {
         const currentOffset = editor.posToOffset(editor.getCursor());
         const allowLinkTitle =
             valueBefore === valueAtInvocation
-                ? !isInsideMarkdownLinkDestination(valueAtInvocation, fromOffset, toOffset)
-                : !isInsideMarkdownLinkDestination(valueBefore, currentOffset, currentOffset);
+                ? !isInsideMarkdownLink(valueAtInvocation, fromOffset, toOffset)
+                : !isInsideMarkdownLink(valueBefore, currentOffset, currentOffset);
         const needsTitle = allowLinkTitle && this.titles.hasWork(result.text);
         const needsTitleBatch = allowLinkTitle && this.titles.hasBatchWork(result.text);
         const localTitle = allowLinkTitle && settings.linkTitles ? obsidianUrlTitle(result.text) : null;
@@ -770,7 +814,7 @@ export class PasteService {
             }
         }
 
-        const allowLinkTitle = !isInsideMarkdownLinkDestination(range.valueBefore, range.startOffset, selectionEnd);
+        const allowLinkTitle = !isInsideMarkdownLink(range.valueBefore, range.startOffset, selectionEnd);
         const needsTitle = allowLinkTitle && this.titles.hasWork(text);
         const titleLines =
             allowLinkTitle && !needsTitle && settings.linkTitles ? standaloneWebUrlLines(text, { allowBlockQuotes: true }) : null;
