@@ -61,7 +61,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         fixed: [
             'Fixed page titles not appearing when you pasted a link directly before existing text, inside parentheses or after a word without a space [#46](https://github.com/johansan/better-paste/issues/46).',
-            'Fixed the Custom processing diagram, which showed link titles being fetched before your text snippets run [#55](https://github.com/johansan/better-paste/issues/55).'
+            'Fixed the Custom processing diagram, which showed link titles being fetched before your text snippets run [#55](https://github.com/johansan/better-paste/issues/55).',
+            'Fixed link snippets doubling a backslash they add to a title, such as `\\#` [#56](https://github.com/johansan/better-paste/issues/56).'
         ]
     },
     {

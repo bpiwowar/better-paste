@@ -1571,6 +1571,21 @@ describe('handleEditorPaste: link titles', () => {
         expect(editor.getValue()).toBe('[A document](https://example.com/a%28b%29)');
     });
 
+    it('keeps a backslash escape that a URL snippet adds to the title', async () => {
+        const url = 'https://github.com/johansan/notebook-navigator/issues/860';
+        const title = '[FR] regex-based colors and icons · Issue #860 · johansan/notebook-navigator · GitHub';
+        const rule = String.raw`s~#(?=[^\]]*\]\()~\#~g`;
+        const { service } = build({ linkTitles: true, linkEnabled: false, urlSnippets: [urlSnippet(rule)] }, false, undefined, title);
+        const editor = new FakeEditor('');
+
+        service.handleEditorPaste(fakeClipboardEvent({ plain: url }), editor.asEditor(), INFO);
+        await settle();
+
+        expect(editor.getValue()).toBe(
+            String.raw`[\[FR\] regex-based colors and icons · Issue \#860 · johansan/notebook-navigator · GitHub](` + url + ')'
+        );
+    });
+
     it('keeps a text snippet away from the fetched link', async () => {
         const snippet: TextSnippet = { id: 'plain', name: 'Plain', rules: ['s/Example/Changed/'], enabled: true };
         const { service } = build({ linkTitles: true, linkEnabled: false, textSnippets: [snippet] });

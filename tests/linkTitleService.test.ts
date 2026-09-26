@@ -181,6 +181,17 @@ describe('link title candidates', () => {
         expect(composeTitledLink(source, source.replace('\\[page\\]', 'document'))).toBe('[A document](https://example.com/a%28b%29)');
         expect(composeTitledLink(source, source.replace('https:', 'http:'))).toBe(source);
     });
+
+    it('keeps escapes already in a rewritten label and escapes new Markdown', () => {
+        const source = '[Issue #1 \\# a\\b](https://example.com/)';
+
+        expect(composeTitledLink(source, source.replace('#1', '\\#1'))).toBe('[Issue \\#1 \\# a\\\\b](https://example.com/)');
+        expect(composeTitledLink(source, source.replace('#1', '*1* [x]'))).toBe('[Issue \\*1\\* \\[x\\] \\# a\\\\b](https://example.com/)');
+        expect(composeTitledLink(source, source.replace('Issue', 'Bug'))).toBe('[Bug #1 \\# a\\\\b](https://example.com/)');
+
+        const formatted = formatTitledLink('Path C:\\#1', 'https://example.com/');
+        expect(composeTitledLink(formatted, formatted.replace('Path', 'Folder'))).toBe('[Folder C:\\\\#1](https://example.com/)');
+    });
 });
 
 describe('LinkTitleService', () => {

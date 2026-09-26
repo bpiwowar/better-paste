@@ -167,9 +167,13 @@ function titledLinkDestinationStart(markdown: string): number {
     return -1;
 }
 
-/** Removes only escapes that the title formatter itself adds. */
-function unescapeLinkTitle(title: string): string {
-    return title.replace(/\\([\\`*_[\]<>~|])/g, '$1');
+/**
+ * Escapes Markdown in a label that a snippet rewrote. A backslash before ASCII
+ * punctuation is already a Markdown escape and stays as written, so an escape a
+ * snippet adds, such as `\#`, does not get a second backslash.
+ */
+function escapeRewrittenLabel(label: string): string {
+    return label.replace(/\\[!-/:-@[-`{-~]|[\\`*_[\]<>~|]/g, match => (match.length === 2 ? match : `\\${match}`));
 }
 
 /** Keeps the original titled link unless a snippet changes only its non-empty label. */
@@ -182,7 +186,7 @@ export function composeTitledLink(source: string, result: string): string {
 
     const label = result.slice(1, -destination.length);
     if (!label.trim() || /[\r\n]/.test(label)) return source;
-    return `[${escapeLinkTitle(unescapeLinkTitle(label))}${destination}`;
+    return `[${escapeRewrittenLabel(label)}${destination}`;
 }
 
 /** True when a page-specific URL returned only a brand name found in its hostname. */
