@@ -152,13 +152,14 @@ export class BetterPasteSettingTab extends PluginSettingTab {
 
     /** Subsection pages render outside the tab container, so their owning document handles delegated clicks. */
     private registerSnippetEditListener(ownerDocument: Document): void {
-        const ownerWindow = ownerDocument.defaultView;
-        if (!ownerWindow || this.snippetEditListenerDocuments.has(ownerDocument)) return;
+        if (this.snippetEditListenerDocuments.has(ownerDocument)) return;
         this.snippetEditListenerDocuments.add(ownerDocument);
 
         this.plugin.registerDomEvent(ownerDocument, 'click', event => {
-            const target = event.target;
-            if (!(target instanceof ownerWindow.Element)) return;
+            // With settings in a popout window, a list rebuilt after a save holds buttons
+            // created in the main window, so a check against one window's Element misses them
+            const target = event.targetNode;
+            if (!target?.instanceOf(HTMLElement)) return;
             const button = target.closest<HTMLButtonElement>('.better-paste-snippet-edit-button');
             if (!button) return;
 

@@ -51,6 +51,13 @@ export interface ReleaseNote {
 /** Newest first. A new release goes at the top. */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.0.17',
+        date: '2026-09-26',
+        fixed: [
+            'Fixed ==Edit snippet== not responding after you saved a snippet, when Obsidian settings open in a new window [#44](https://github.com/johansan/better-paste/issues/44).'
+        ]
+    },
+    {
         version: '1.0.16',
         date: '2026-09-26',
         new: [

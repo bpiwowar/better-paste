@@ -76,14 +76,27 @@ function fakePlugin(overrides: Partial<BetterPasteSettings> = {}) {
     };
 }
 
+/**
+ * A node built by the main window. Obsidian's instanceOf matches the class by name in the
+ * node's own window and in the window that built it, so it holds in any document.
+ */
 class MainWindowElement {
     readonly dataset: Record<string, string> = {};
 
     constructor(private readonly closestMatch: MainWindowElement | null) {}
 
+    instanceOf(type: { name: string }): boolean {
+        return type.name === 'HTMLElement';
+    }
+
     closest(selector: string): MainWindowElement | null {
         return selector === '.better-paste-snippet-edit-button' ? this.closestMatch : null;
     }
+}
+
+/** Obsidian's targetNode reads the same node as target. */
+function clickEvent(target: unknown): MouseEvent {
+    return { target, targetNode: target, preventDefault: vi.fn(), stopPropagation: vi.fn() } as unknown as MouseEvent;
 }
 
 function makeTab(plugin: ReturnType<typeof fakePlugin>): BetterPasteSettingTab {
@@ -264,6 +277,7 @@ function renderSnippetTools(tab: BetterPasteSettingTab, ownerDocument: unknown):
 
 beforeEach(() => {
     vi.stubGlobal('document', documentTarget);
+    vi.stubGlobal('HTMLElement', class HTMLElement {});
 });
 
 afterEach(() => {
@@ -667,14 +681,9 @@ describe('settings values', () => {
         plugin.settings.textSnippets = [{ id: 'replace', name: 'Current name', rules: ['s/c/d/g'], enabled: false }];
         const button = new MainWindowElement(null);
         button.dataset.snippetId = 'replace';
-        const target = new MainWindowElement(button);
         const preventDefault = vi.fn();
         const stopPropagation = vi.fn();
-        const event = {
-            target,
-            preventDefault,
-            stopPropagation
-        } as unknown as MouseEvent;
+        const event = { ...clickEvent(new MainWindowElement(button)), preventDefault, stopPropagation };
         const open = vi.spyOn(TextSnippetModal.prototype, 'open');
 
         try {
@@ -696,6 +705,10 @@ describe('settings values', () => {
 
             constructor(private readonly closestMatch: PopoutElement | null) {}
 
+            instanceOf(type: { name: string }): boolean {
+                return type.name === 'HTMLElement';
+            }
+
             closest(selector: string): PopoutElement | null {
                 return selector === '.better-paste-snippet-edit-button' ? this.closestMatch : null;
             }
@@ -712,15 +725,28 @@ describe('settings values', () => {
 
         const button = new PopoutElement(null);
         button.dataset.snippetId = 'popout';
-        const event = {
-            target: new PopoutElement(button),
-            preventDefault: vi.fn(),
-            stopPropagation: vi.fn()
-        } as unknown as MouseEvent;
         const open = vi.spyOn(TextSnippetModal.prototype, 'open');
 
         try {
-            registrations[1]?.callback(event);
+            registrations[1]?.callback(clickEvent(new PopoutElement(button)));
+            expect(open).toHaveBeenCalledOnce();
+        } finally {
+            open.mockRestore();
+        }
+    });
+
+    it('opens the editor from a popout button that the main window built', () => {
+        // Settings in a popout window rebuild the list after a save with main window nodes
+        const popoutDocument = { defaultView: { Element: class PopoutElement {} } };
+        plugin.settings.urlSnippets = [{ id: 'titles', name: 'Remove site names', rules: ['s/a/b/g'], enabled: true }];
+        renderSnippetTools(tab, popoutDocument);
+
+        const button = new MainWindowElement(null);
+        button.dataset.snippetId = 'titles';
+        const open = vi.spyOn(TextSnippetModal.prototype, 'open');
+
+        try {
+            plugin.domEvents()[0]?.callback(clickEvent(new MainWindowElement(button)));
             expect(open).toHaveBeenCalledOnce();
         } finally {
             open.mockRestore();
