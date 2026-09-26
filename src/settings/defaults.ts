@@ -44,6 +44,7 @@ export const DEFAULT_SETTINGS: BetterPasteSettings = {
 
     linkEnabled: true,
     linkTitles: true,
+    linkTitleFallback: 'off',
     linkRemovals: [],
 
     textTrim: true,

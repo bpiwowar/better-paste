@@ -61,6 +61,7 @@ import {
     escapeLinkTitle,
     formatTitledLink,
     isObviousImageUrl,
+    linkTitleFallbackLabel,
     obsidianUrlTitle,
     standaloneAppUrl,
     standaloneWebUrl,
@@ -823,11 +824,7 @@ export class PasteService {
             try {
                 const materialized = await this.titles.materializeTitle(text);
                 if (materialized === null) titlesFailed = 1;
-                else {
-                    const subject = formatTitledLink(materialized.title, materialized.url);
-                    const ruled = applyTextSnippets(subject, this.getSettings().urlSnippets).text;
-                    text = composeTitledLink(subject, ruled);
-                }
+                text = this.composeTitleLink(materialized?.title ?? null, materialized?.url ?? text) ?? text;
             } finally {
                 this.hideTitleProgress(progress);
             }
@@ -924,10 +921,9 @@ export class PasteService {
             if (materialized === null) {
                 this.hideTitleProgress(progress);
                 showNotice(format(strings.notices.prefix, { message: strings.notices.titleFailed }), { variant: 'warning' });
-            } else {
-                const subject = formatTitledLink(materialized.title, materialized.url);
-                const ruled = applyTextSnippets(subject, this.getSettings().urlSnippets).text;
-                const link = composeTitledLink(subject, ruled);
+            }
+            const link = this.composeTitleLink(materialized?.title ?? null, materialized?.url ?? range.inserted);
+            if (link !== null) {
                 this.replaceRange(editor, range, link, (value, offset) => titleBoundaryIntact(value, offset, range));
             }
         } finally {
@@ -965,10 +961,19 @@ export class PasteService {
         }
     }
 
-    /** Replaces the URL on each non-blank line with its fetched title. */
+    /** Formats fetched titles and fallback labels before applying link snippets. */
+    private composeTitleLink(title: string | null, url: string): string | null {
+        const settings = this.getSettings();
+        const label = title ?? linkTitleFallbackLabel(url, settings.linkTitleFallback);
+        if (label === null) return null;
+        const subject = formatTitledLink(label, url);
+        return composeTitledLink(subject, applyTextSnippets(subject, settings.urlSnippets).text);
+    }
+
+    /** Replaces the URL on each non-blank line with its fetched title or fallback. */
     private rebuildTitleBatch(
         text: string,
-        lines: readonly { leading: string; trailing: string }[],
+        lines: readonly { url: string; leading: string; trailing: string }[],
         materialized: readonly ({ title: string; url: string } | null)[]
     ): { text: string; failed: number } {
         let resultIndex = 0;
@@ -980,13 +985,9 @@ export class PasteService {
                 const parts = lines[resultIndex];
                 const result = materialized[resultIndex];
                 resultIndex += 1;
-                if (result === null) {
-                    failed += 1;
-                    return line;
-                }
-                const subject = formatTitledLink(result.title, result.url);
-                const ruled = applyTextSnippets(subject, this.getSettings().urlSnippets).text;
-                return `${parts.leading}${composeTitledLink(subject, ruled)}${parts.trailing}`;
+                if (result === null) failed += 1;
+                const link = this.composeTitleLink(result?.title ?? null, result?.url ?? parts.url);
+                return link === null ? line : `${parts.leading}${link}${parts.trailing}`;
             })
             .join('\n');
         return { text: rebuilt, failed };

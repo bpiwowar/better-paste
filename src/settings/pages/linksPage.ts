@@ -21,6 +21,8 @@ import { LINK_REMOVALS_UPDATED, SHIPPED_PARAM_REMOVALS, TRACKING_PARAMS } from '
 import { DEFAULT_SETTINGS } from '../defaults';
 import { findInvalidRemovalRules } from '../normalize';
 import { buildUrlCleanupOptions, cleanUrl } from '../../transforms/urlCleanup';
+import { formatTitledLink, linkTitleFallbackLabel } from '../../paste/LinkTitleService';
+import type { BetterPasteSettings } from '../types';
 import { aliases, format, localeTag, plural, strings } from '../../i18n';
 import { BUILT_IN_LINK_REMOVALS_URL } from '../../urls';
 import { createUrlSnippetsPage } from './customProcessingPage';
@@ -31,6 +33,21 @@ import type { SettingsPageContext } from './context';
 /** The two halves of the example address, which read the same in every language. */
 const CLEANING_EXAMPLE_KEPT = 'https://example.com/article';
 const CLEANING_EXAMPLE_REMOVED = '?utm_source=newsletter&fbclid=9c2a41';
+
+/** Shows the same fallback label and Markdown formatting used when fetching fails. */
+function titleFallbackExample(mode: BetterPasteSettings['linkTitleFallback']): string | DocumentFragment {
+    const address = 'https://en.wikipedia.org/wiki/Obsidian';
+    const label = linkTitleFallbackLabel(address, mode);
+    const example = label === null ? address : formatTitledLink(label, address);
+    const description = strings.settings.links.titleFallbackDesc;
+
+    if (typeof createFragment === 'undefined') return format(strings.settings.plainFallback, { description, example });
+
+    return createFragment(fragment => {
+        fragment.appendText(description);
+        fragment.createDiv({ cls: 'better-paste-example', text: example });
+    });
+}
 
 /**
  * Shows the rule by example, with the part that gets removed struck through.
@@ -141,6 +158,28 @@ export function createLinkLandingDefinitions(
             desc: text.titlesDesc,
             aliases: aliases(source => source.settings.links.titlesAliases),
             control: { type: 'toggle', key: 'linkTitles', defaultValue: DEFAULT_SETTINGS.linkTitles }
+        },
+        {
+            name: text.titleFallbackName,
+            desc: titleFallbackExample(context.settings().linkTitleFallback),
+            aliases: aliases(source => source.settings.links.titleFallbackAliases),
+            visible: () => context.settings().linkTitles,
+            render: setting => {
+                setting.setName(text.titleFallbackName);
+                setting.setDesc(titleFallbackExample(context.settings().linkTitleFallback));
+                setting.addDropdown(dropdown => {
+                    dropdown.addOption('off', text.titleFallbackChoiceOff);
+                    dropdown.addOption('domain', text.titleFallbackChoiceDomain);
+                    dropdown.addOption('address', text.titleFallbackChoiceAddress);
+                    dropdown.setValue(context.settings().linkTitleFallback);
+                    dropdown.onChange(value => {
+                        if (value !== 'off' && value !== 'domain' && value !== 'address') return;
+                        context.settings().linkTitleFallback = value;
+                        setting.setDesc(titleFallbackExample(value));
+                        return context.saveSettings();
+                    });
+                });
+            }
         },
         createUrlSnippetsPage(context, registerSnippetEditListener),
         {

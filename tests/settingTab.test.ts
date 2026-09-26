@@ -19,6 +19,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
     App,
+    DropdownComponent,
     Setting,
     SettingDefinition,
     SettingDefinitionControl,
@@ -33,6 +34,7 @@ import type { BetterPasteSettings } from '../src/settings/types';
 import { TextSnippetModal, TITLED_LINK_SAMPLE } from '../src/settings/TextSnippetModal';
 import { linkRemovalContributionUrl } from '../src/settings/pages/linksPage';
 import { BUILT_IN_LINK_REMOVALS_URL } from '../src/urls';
+import { format, strings } from '../src/i18n';
 
 /**
  * Settings the tab deliberately has no row for, because they are state the plugin keeps
@@ -50,7 +52,8 @@ const CUSTOM_RENDER_SETTING_KEYS = [
     'imageClassChoice',
     'imageClassOptions',
     'textSnippets',
-    'urlSnippets'
+    'urlSnippets',
+    'linkTitleFallback'
 ];
 
 /** Minimal plugin double exposing only what the setting tab touches. */
@@ -369,6 +372,75 @@ describe('settings tree', () => {
     it('puts title fetching above link cleaning', () => {
         const names = flatten(tab.getSettingDefinitions()).map(row => row.name);
         expect(names.indexOf('Fetch titles for pasted links')).toBeLessThan(names.indexOf('Clean pasted links'));
+        expect(names[names.indexOf('Fetch titles for pasted links') + 1]).toBe(strings.settings.links.titleFallbackName);
+    });
+
+    it.each(['off', 'domain', 'address'] as const)('shows the saved %s fallback in the settings example', mode => {
+        plugin.settings.linkTitleFallback = mode;
+        const row = flatten(tab.getSettingDefinitions()).find(candidate => candidate.name === strings.settings.links.titleFallbackName);
+        const address = 'https://en.wikipedia.org/wiki/Obsidian';
+        const examples = { off: address, domain: `[en.wikipedia.org](${address})`, address: `[${address}](${address})` };
+
+        expect(row?.desc).toBe(
+            format(strings.settings.plainFallback, {
+                description: strings.settings.links.titleFallbackDesc,
+                example: examples[mode]
+            })
+        );
+        expect(row?.aliases).toContain('fallback');
+    });
+
+    it.each([false, true])('updates the fallback dropdown example live with DOM available: %s', async withDom => {
+        if (withDom) {
+            vi.stubGlobal('createFragment', (build: (fragment: PreviewElement) => void) => {
+                const fragment = new PreviewElement('fragment');
+                build(fragment);
+                return fragment;
+            });
+        }
+        const row = flatten(tab.getSettingDefinitions()).find(candidate => candidate.name === strings.settings.links.titleFallbackName);
+        let change: (value: string) => Promise<void> | void = () => undefined;
+        const options: Record<string, string> = {};
+        const dropdown = {
+            addOption(value: string, label: string) {
+                options[value] = label;
+                return this;
+            },
+            setValue: vi.fn(),
+            onChange(callback: typeof change) {
+                change = callback;
+                return this;
+            }
+        };
+        const setting = {
+            setName: vi.fn(),
+            setDesc: vi.fn<(description: string | DocumentFragment) => void>(),
+            addDropdown: (build: (dropdown: DropdownComponent) => void) => build(dropdown as unknown as DropdownComponent)
+        };
+        row?.render?.(setting as unknown as Setting);
+        expect(options).toEqual({ off: 'Do nothing', domain: 'Link with domain name', address: 'Link with full address' });
+        expect(dropdown.setValue).toHaveBeenCalledWith('off');
+
+        const address = 'https://en.wikipedia.org/wiki/Obsidian';
+        const examples = { domain: `[en.wikipedia.org](${address})`, address: `[${address}](${address})`, off: address };
+        for (const mode of ['domain', 'address', 'off'] as const) {
+            await change(mode);
+            expect(plugin.settings.linkTitleFallback).toBe(mode);
+            const description = setting.setDesc.mock.lastCall?.[0];
+            if (withDom) {
+                const fragment = description as unknown as PreviewElement;
+                expect(fragment.text).toBe(strings.settings.links.titleFallbackDesc);
+                expect(fragment.querySelector('.better-paste-example')?.text).toBe(examples[mode]);
+            } else {
+                expect(description).toBe(
+                    format(strings.settings.plainFallback, {
+                        description: strings.settings.links.titleFallbackDesc,
+                        example: examples[mode]
+                    })
+                );
+            }
+        }
+        expect(plugin.saveCount()).toBe(3);
     });
 
     it('renders the filename format as a single field', () => {
@@ -422,11 +494,12 @@ describe('settings tree', () => {
 
         expect(settingEl.querySelectorAll('.better-paste-pipeline-step').map(step => step.text)).toEqual([
             'Pasted text',
-            'Links',
+            'Link cleaning',
             'Text processing',
             'Custom processing',
             'Structure',
             'Attachments',
+            'Link titles',
             'Note'
         ]);
     });
@@ -790,6 +863,19 @@ describe('dependent settings', () => {
     it('hides the link detail when the rule is off', () => {
         expect(isVisible(pageFor('Link removals', { linkEnabled: false }))).toBe(false);
         expect(isVisible(pageFor('Link removals', { linkEnabled: true }))).toBe(true);
+    });
+
+    it('shows and hides the title fallback when title fetching is toggled', async () => {
+        const tab = makeTab(fakePlugin({ linkTitles: false }));
+        const row = flatten(tab.getSettingDefinitions()).find(candidate => candidate.name === strings.settings.links.titleFallbackName);
+        const before = (tab as unknown as { refreshCount: number }).refreshCount;
+        expect(isVisible(row)).toBe(false);
+
+        await tab.setControlValue('linkTitles', true);
+        expect(isVisible(row)).toBe(true);
+        await tab.setControlValue('linkTitles', false);
+        expect(isVisible(row)).toBe(false);
+        expect((tab as unknown as { refreshCount: number }).refreshCount).toBe(before + 2);
     });
 
     it('keeps the quote and dash choices independent of invisible characters', () => {

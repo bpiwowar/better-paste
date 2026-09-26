@@ -32,6 +32,16 @@ import { parseDomainRemovals } from '../src/transforms/urlCleanup';
 import { fakeFile } from './stubs/editor';
 
 describe('normalizeSettings', () => {
+    it('validates the link title fallback and defaults to off', () => {
+        expect(normalizeSettings({}).linkTitleFallback).toBe('off');
+        for (const mode of ['off', 'domain', 'address']) {
+            expect(normalizeSettings({ linkTitleFallback: mode }).linkTitleFallback).toBe(mode);
+        }
+        for (const value of ['unknown', '', null, true, 1, {}]) {
+            expect(normalizeSettings({ linkTitleFallback: value }).linkTitleFallback).toBe('off');
+        }
+    });
+
     it('migrates the web image mode and validates stored values', () => {
         expect(normalizeSettings({ imageEnabled: false }).imageMode).toBe('off');
         expect(normalizeSettings({ imageEnabled: true }).imageMode).toBe('link');

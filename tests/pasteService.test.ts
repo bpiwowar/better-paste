@@ -121,11 +121,12 @@ function build(overrides: Partial<BetterPasteSettings> = {}, failing = false, pr
     const settings: BetterPasteSettings = { ...DEFAULT_SETTINGS, imageMode: 'download', ...overrides };
     const saved: SavedClipboardImages[] = [];
     const fetchedTitles: string[] = [];
+    const titles = fakeTitles(settings, fetchedTitles, pageTitle);
     const nativeFilePastes: { files: readonly File[]; editor: Editor }[] = [];
     const service = new PasteService(
         () => settings,
         fakeImages(settings, failing, saved),
-        fakeTitles(settings, fetchedTitles, pageTitle),
+        titles,
         async (sizes, classes) => {
             prompt?.calls.push({ sizes, classes });
             return prompt?.response ?? null;
@@ -133,7 +134,7 @@ function build(overrides: Partial<BetterPasteSettings> = {}, failing = false, pr
         undefined,
         (files, editor) => nativeFilePastes.push({ files, editor })
     );
-    return { settings, service, saved, fetchedTitles, nativeFilePastes };
+    return { settings, service, saved, titles, fetchedTitles, nativeFilePastes };
 }
 
 /** Lets queued timers and download promises settle. */
@@ -1852,6 +1853,160 @@ describe('handleEditorPaste: link titles', () => {
         await settle();
 
         expect(editor.getValue()).toBe('![[image-0.png]]');
+    });
+});
+
+describe.each(['editor', 'command', 'rich'] as const)('link title fallbacks: %s', source => {
+    async function paste(service: PasteService, editor: FakeEditor, text: string): Promise<void> {
+        if (source === 'command') {
+            vi.stubGlobal('navigator', { clipboard: { readText: async () => text } });
+            try {
+                await service.pasteProcessed(editor.asEditor(), INFO);
+            } finally {
+                vi.unstubAllGlobals();
+            }
+        } else if (source === 'rich') {
+            expect(service.handleEditorPaste(fakeClipboardEvent({ html: '<p>Copied links</p>' }), editor.asEditor(), INFO)).toBe(false);
+            editor.replaceSelection(text);
+        } else {
+            expect(service.handleEditorPaste(fakeClipboardEvent({ plain: text }), editor.asEditor(), INFO)).toBe(true);
+        }
+        await settle();
+    }
+
+    it.each(['off', 'domain', 'address'] as const)('uses the %s fallback and keeps the single failure notice', async mode => {
+        const { service, titles } = build({ linkTitleFallback: mode });
+        vi.spyOn(titles, 'materializeTitle').mockResolvedValue(null);
+        const editor = new FakeEditor('');
+        const url = 'https://en.wikipedia.org/wiki/Obsidian';
+        const noticeCount = Notice.instances.length;
+
+        await paste(service, editor, url);
+
+        const expected = {
+            off: url,
+            domain: `[en.wikipedia.org](${url})`,
+            address: `[${url}](${url})`
+        };
+        expect(editor.getValue()).toBe(expected[mode]);
+        expect(Notice.instances.slice(noticeCount).map(notice => notice.message)).toEqual([
+            source === 'rich' ? 'Better Paste: could not fetch 1 title' : 'Better Paste: could not fetch the title.'
+        ]);
+    });
+
+    it('preserves a Unicode domain after URL cleanup removes tracking', async () => {
+        const { service, titles } = build({ linkTitleFallback: 'domain' });
+        const fetch = vi.spyOn(titles, 'materializeTitle').mockResolvedValue(null);
+        const editor = new FakeEditor('');
+
+        await paste(service, editor, 'https://www.räksmörgås.se/a?utm_source=test');
+
+        expect(fetch).toHaveBeenCalledWith('https://www.räksmörgås.se/a');
+        expect(editor.getValue()).toBe('[räksmörgås.se](https://www.räksmörgås.se/a)');
+    });
+
+    it('applies link snippets to the fallback label while protecting the destination', async () => {
+        const { service, titles } = build({
+            linkTitleFallback: 'domain',
+            urlSnippets: [urlSnippet('s/example\\.com/Fallback/')]
+        });
+        vi.spyOn(titles, 'materializeTitle').mockResolvedValue(null);
+        const editor = new FakeEditor('');
+
+        await paste(service, editor, 'https://example.com/page');
+
+        expect(editor.getValue()).toBe('[Fallback](https://example.com/page)');
+    });
+
+    it('rejects a fallback snippet that changes the destination', async () => {
+        const { service, titles } = build({
+            linkTitleFallback: 'address',
+            urlSnippets: [urlSnippet('s/https:/http:/g')]
+        });
+        vi.spyOn(titles, 'materializeTitle').mockResolvedValue(null);
+        const editor = new FakeEditor('');
+
+        await paste(service, editor, 'https://example.com/page');
+
+        expect(editor.getValue()).toBe('[https://example.com/page](https://example.com/page)');
+    });
+
+    it.each(['off', 'domain', 'address'] as const)('keeps batch prefixes, whitespace and failure counts with %s', async mode => {
+        const { service, titles } = build({
+            linkTitleFallback: mode,
+            textTrim: false,
+            listNesting: false,
+            urlSnippets: [urlSnippet('s/example\\.com/Fallback/')]
+        });
+        const first = 'https://a.com/page';
+        const second = 'https://www.example.com/missing';
+        const third = 'https://b.com/missing';
+        vi.spyOn(titles, 'materializeTitles').mockResolvedValue([{ title: 'Fetched', url: first }, null, null]);
+        const editor = new FakeEditor('> ');
+        const noticeCount = Notice.instances.length;
+
+        await paste(service, editor, `1. ${first}  \n\n2. ${second}  \n3. ${third}`);
+
+        const secondLink = {
+            off: second,
+            domain: `[Fallback](${second})`,
+            address: `[https://www.Fallback/missing](${second})`
+        };
+        const thirdLink = { off: third, domain: `[b.com](${third})`, address: `[${third}](${third})` };
+        expect(editor.getValue()).toBe(`> 1. [Fetched](${first})  \n>\n> 2. ${secondLink[mode]}  \n> 3. ${thirdLink[mode]}`);
+        expect(Notice.instances.slice(noticeCount).map(notice => notice.message)).toEqual(['Better Paste: could not fetch 2 titles']);
+    });
+
+    it.each(['extend', 'edit', 'dispose'] as const)('does not write a late single fallback after %s', async action => {
+        const { service, titles } = build({ linkTitleFallback: 'domain' });
+        let finish: (value: null) => void = () => undefined;
+        const pending = new Promise<null>(resolve => {
+            finish = resolve;
+        });
+        const fetch = vi.spyOn(titles, 'materializeTitle').mockReturnValue(pending);
+        const editor = new FakeEditor('');
+        const url = 'https://example.com/page';
+        const pasting = paste(service, editor, url);
+        await settle();
+        expect(fetch).toHaveBeenCalledWith(url);
+
+        if (action === 'extend') editor.replaceSelection('/docs');
+        else if (action === 'edit') {
+            editor.setSelection(url.indexOf('page'), url.length);
+            editor.replaceSelection('edited');
+        } else service.dispose();
+        const before = editor.getValue();
+        finish(null);
+        await pasting;
+        await settle();
+
+        expect(editor.getValue()).toBe(before);
+    });
+
+    it.each(['extend', 'edit', 'dispose'] as const)('does not write a late batch fallback after %s', async action => {
+        const { service, titles } = build({ linkTitleFallback: 'address' });
+        let finish: (value: null[]) => void = () => undefined;
+        const pending = new Promise<null[]>(resolve => {
+            finish = resolve;
+        });
+        const fetch = vi.spyOn(titles, 'materializeTitles').mockReturnValue(pending);
+        const editor = new FakeEditor('');
+        const urls = 'https://a.com/page\nhttps://b.com/page';
+        const pasting = paste(service, editor, urls);
+        await settle();
+        expect(fetch).toHaveBeenCalledWith(urls, { allowBlockQuotes: true });
+
+        if (action === 'extend') editor.replaceSelection('/docs');
+        else if (action === 'edit') {
+            editor.setSelection(urls.indexOf('page'), urls.indexOf('page') + 4);
+            editor.replaceSelection('edited');
+        } else service.dispose();
+        const before = editor.getValue();
+        finish([null, null]);
+        await pasting;
+        await settle();
+
+        expect(editor.getValue()).toBe(before);
     });
 });
 

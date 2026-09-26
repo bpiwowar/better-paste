@@ -85,6 +85,8 @@ export interface BetterPasteSettings {
     linkEnabled: boolean;
     /** Turn a pasted standalone web address into a Markdown link using the page title. */
     linkTitles: boolean;
+    /** Label to use when a pasted web address has no fetched title. */
+    linkTitleFallback: 'off' | 'domain' | 'address';
     /** Global and domain-specific parameter removals defined by the user. */
     linkRemovals: string[];
 

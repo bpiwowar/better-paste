@@ -84,6 +84,8 @@ The URL is pasted right away and updates when the title arrives, so nothing bloc
 
 A list of links works too. Paste several URLs, each on its own line, and every one gets its title.
 
+If a title can't be fetched, the URL stays as it is. Or set **When a title cannot be fetched** to get a link with the domain name instead, like `[npmjs.com](https://www.npmjs.com/package/mocha)`.
+
 Fetched titles often end with the site name, like `· GitHub` or `- YouTube`. The included **Remove site names from titles** link snippet trims those, and you can add your own rules, see [section 3.5](#35-custom-processing).
 
 Reddit, YouTube, TikTok and Loom block ordinary page lookups, so their titles are fetched from each site's own embed service instead, and Stack Overflow and the other Stack Exchange sites through the Stack Exchange API. Dropbox share links get the file or folder name as their title, and Obsidian URLs get the note name.
@@ -236,6 +238,7 @@ Alt text survives, and if a download fails the original link stays in your note.
 ### 3.3 Links
 
 - **Fetch titles for pasted links**: on by default, see example 2.4 above.
+- **When a title cannot be fetched**: **Do nothing** keeps the plain URL. **Link with domain name** pastes `[en.wikipedia.org](https://en.wikipedia.org/wiki/Obsidian)`, and **Link with full address** uses the whole URL as the label.
 - **Clean pasted links**: removes common trackers everywhere, plus known clutter from sites such as YouTube, Google and Amazon.
 - **Link removals**: add parameter names you also want removed everywhere or on specific sites. A live tester shows the result before you paste:
 
@@ -277,8 +280,8 @@ Start a line with `!` to turn off the built-in removals for one site:
 
 ### 3.5 Custom processing
 
-- **Text snippets**: your own regex rules, run on the whole paste after the built-in rules. Each snippet has its own switch, and they run in list order, so drag to reorder. **Remove bold from headings** and **Collapse blank lines** come with the plugin.
-- **Link snippets**: the same kind of rules, run on each pasted link once its title has arrived. A rule sees the finished Markdown link, and the address stays unchanged. **Remove site names from titles** comes with the plugin and trims endings like `· GitHub` and `- YouTube`.
+- **Text snippets**: your own regex rules, run on the whole paste before any link title is fetched. Each snippet has its own switch, and they run in list order, so drag to reorder. **Remove bold from headings** and **Collapse blank lines** come with the plugin.
+- **Link snippets**: the same kind of rules, run on each pasted link once its title has arrived, and on links made by **When a title cannot be fetched**. A rule sees the finished Markdown link, and the address stays unchanged. **Remove site names from titles** comes with the plugin and trims endings like `· GitHub` and `- YouTube`.
 - A rule is one JavaScript regex replacement per line, in the form `s/find/replace/flags`. Lines starting with `#` are comments:
 
 ```

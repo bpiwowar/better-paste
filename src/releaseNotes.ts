@@ -52,12 +52,16 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.0.16',
-        date: '2026-09-22',
+        date: '2026-09-26',
+        new: [
+            'You can now choose what to paste when a link title cannot be fetched. The plain address, or a link with the domain name or the full address [#55](https://github.com/johansan/better-paste/issues/55).'
+        ],
         improved: [
             'Linked each version heading in this dialog to its release on GitHub, so you can copy the notes from there [#37](https://github.com/johansan/better-paste/issues/37).'
         ],
         fixed: [
-            'Fixed page titles not appearing when you pasted a link directly before existing text, inside parentheses or after a word without a space [#46](https://github.com/johansan/better-paste/issues/46).'
+            'Fixed page titles not appearing when you pasted a link directly before existing text, inside parentheses or after a word without a space [#46](https://github.com/johansan/better-paste/issues/46).',
+            'Fixed the Custom processing diagram, which showed link titles being fetched before your text snippets run [#55](https://github.com/johansan/better-paste/issues/55).'
         ]
     },
     {

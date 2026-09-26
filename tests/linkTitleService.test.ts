@@ -23,6 +23,7 @@ import {
     escapeLinkTitle,
     formatTitledLink,
     isObviousImageUrl,
+    linkTitleFallbackLabel,
     LinkTitleService,
     obsidianUrlTitle,
     standaloneAppUrl,
@@ -48,6 +49,23 @@ function response(overrides: Partial<RequestUrlResponse> = {}): RequestUrlRespon
 }
 
 describe('link title candidates', () => {
+    it.each([
+        ['https://en.wikipedia.org/wiki/Obsidian', 'en.wikipedia.org'],
+        ['https://www.npmjs.com/package/mocha', 'npmjs.com'],
+        ['https://räksmörgås.se/a', 'räksmörgås.se'],
+        ['https://www.räksmörgås.se/a', 'räksmörgås.se'],
+        ['https://user:password@www.example.com:8443/a', 'example.com'],
+        ['https://[::1]:8443/a', '[::1]']
+    ])('uses the hostname as written for a domain fallback: %s', (url, label) => {
+        expect(linkTitleFallbackLabel(url, 'domain')).toBe(label);
+    });
+
+    it('uses the full address as the address fallback and no label when off', () => {
+        const url = 'https://en.wikipedia.org/wiki/Obsidian';
+        expect(linkTitleFallbackLabel(url, 'address')).toBe(url);
+        expect(linkTitleFallbackLabel(url, 'off')).toBeNull();
+    });
+
     it('derives note titles from standalone Obsidian open URLs', () => {
         expect(obsidianUrlTitle('obsidian://open?vault=Notes&file=My%20Note')).toEqual({
             title: 'My Note',

@@ -35,6 +35,10 @@ function asFileMode(value: unknown): BetterPasteSettings['fileMode'] {
     return value === 'off' || value === 'link' ? value : DEFAULT_SETTINGS.fileMode;
 }
 
+function asLinkTitleFallback(value: unknown): BetterPasteSettings['linkTitleFallback'] {
+    return value === 'off' || value === 'domain' || value === 'address' ? value : DEFAULT_SETTINGS.linkTitleFallback;
+}
+
 function asImageMode(value: unknown, legacyEnabled: unknown): BetterPasteSettings['imageMode'] {
     if (value === 'off' || value === 'link' || value === 'download') return value;
     return legacyEnabled === false ? 'off' : DEFAULT_SETTINGS.imageMode;
@@ -151,6 +155,7 @@ export function normalizeSettings(raw: unknown): BetterPasteSettings {
 
         linkEnabled: asBoolean(data.linkEnabled, defaults.linkEnabled),
         linkTitles: asBoolean(data.linkTitles, defaults.linkTitles),
+        linkTitleFallback: asLinkTitleFallback(data.linkTitleFallback),
         // The former linkRules field held parameter keep-lists. It cannot be migrated
         // because interpreting those names as removals would reverse the user's intent.
         linkRemovals: asStringArray(data.linkRemovals),

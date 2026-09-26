@@ -139,6 +139,17 @@ export function formatTitledLink(title: string, url: string): string {
     return `[${escapeLinkTitle(title)}](${escapeMarkdownDestination(url)})`;
 }
 
+/** Returns a fallback label for a validated web address, or null to leave it bare. */
+export function linkTitleFallbackLabel(url: string, mode: BetterPasteSettings['linkTitleFallback']): string | null {
+    if (mode === 'off') return null;
+    if (mode === 'address') return url;
+
+    // URL cleanup preserves the raw hostname, so read it without URL's punycode
+    // conversion. Credentials and ports are not part of the hostname.
+    const hostname = /^https?:\/\/(?:[^/?#\\]*@)?(\[[^\]]+\]|[^:/?#\\]+)/i.exec(url)?.[1] ?? new URL(url).hostname;
+    return hostname.replace(/^www\./i, '');
+}
+
 /** Finds the first unescaped Markdown link destination delimiter. */
 function titledLinkDestinationStart(markdown: string): number {
     if (!markdown.startsWith('[') || !markdown.endsWith(')') || /[\r\n]/.test(markdown)) return -1;

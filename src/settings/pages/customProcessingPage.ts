@@ -78,16 +78,17 @@ function renderPipeline(setting: Setting): void {
     const text = strings.settings.custom;
     setting.settingEl.addClass('better-paste-pipeline-setting');
     const pipeline = setting.settingEl.createDiv({ cls: 'better-paste-pipeline' });
-    // Each step reuses a section heading, so every label points at a section the user
-    // can find in this pane. Image handling follows the synchronous text and structure
-    // transforms. Link snippets run in the separate title fetch after a link paste.
+    // Each step names a section or a Links setting the user can find in this pane. Link
+    // cleaning runs in the synchronous text pass, but titles are fetched after the paste
+    // is inserted, so a text snippet that rewrites a bare address stops the fetch.
     const steps = [
         text.pastedText,
-        strings.settings.links.heading,
+        text.linkCleaning,
         strings.settings.text.heading,
         strings.settings.custom.heading,
         strings.settings.structure.heading,
         strings.settings.images.heading,
+        text.linkTitles,
         text.note
     ];
 
