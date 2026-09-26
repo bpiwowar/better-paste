@@ -27,6 +27,8 @@ release-notes.md
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+scripts/review.sh
+.review
 
 # Ignore local build script
 scripts/build-local.sh
