@@ -222,6 +222,11 @@ export const STRINGS_EN = {
             invisibleExampleMiddle: 'result',
             invisibleExampleEnd: ' was fine.',
             invisibleExampleAfter: 'The result was fine.',
+            accentsName: 'Accents',
+            accentsDesc: 'Joins accents that PDFs made with LaTeX split off their letters.',
+            accentsAliases: ['accent', 'accents', 'diacritic', 'umlaut', 'latex', 'pdf', 'academic', 'paper'],
+            // Each accent sits in front of its letter, the way LaTeX PDFs paste it
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'Quotes',
             quotesDesc: 'Converts curly quotes and apostrophes into straight quotes.',
             quotesAliases: [
@@ -317,6 +322,7 @@ export const STRINGS_EN = {
     pdfModal: {
         furniture: 'Remove page numbers',
         singleParagraph: 'Join everything into one paragraph',
+        accents: 'Join accents split from their letters',
         description: 'Rejoins wrapped lines, repairs hyphenated words, turns ligatures into plain letters and removes extra spaces.',
         preview: 'Preview'
     },

@@ -221,6 +221,10 @@ export const STRINGS_NL: TranslationStrings = {
             invisibleExampleMiddle: 'resultaat',
             invisibleExampleEnd: ' was goed.',
             invisibleExampleAfter: 'Het resultaat was goed.',
+            accentsName: 'Accenten',
+            accentsDesc: 'Voegt accenten die pdf’s uit LaTeX van hun letters scheiden weer samen.',
+            accentsAliases: ['accent', 'trema', 'diakritisch', 'latex', 'pdf'],
+            accentsExample: 'co¨ordinatie, caf´e',
             quotesName: 'Aanhalingstekens',
             quotesDesc: 'Zet gekrulde aanhalingstekens en apostrofs om in rechte.',
             quotesAliases: [
@@ -316,6 +320,7 @@ export const STRINGS_NL: TranslationStrings = {
     pdfModal: {
         furniture: 'Paginanummers verwijderen',
         singleParagraph: 'Alles samenvoegen tot één alinea',
+        accents: 'Losse accenten met hun letters samenvoegen',
         description:
             'Afgebroken regels worden samengevoegd, afgebroken woorden hersteld, ligaturen omgezet in gewone letters en overtollige spaties verwijderd.',
         preview: 'Voorvertoning'

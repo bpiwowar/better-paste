@@ -40,7 +40,7 @@ import { format, strings } from '../src/i18n';
  * Settings the tab deliberately has no row for, because they are state the plugin keeps
  * rather than a choice the user makes.
  */
-const STORED_STATE_KEYS = ['lastShownVersion', 'imageLastSize', 'imageLastClass', 'pdfLastFurniture', 'pdfLastSingleParagraph'];
+const STORED_STATE_KEYS = ['lastShownVersion', 'imageLastSize', 'imageLastClass', 'pdfLastFurniture', 'pdfLastSingleParagraph', 'pdfLastAccents'];
 
 /** Settings owned by a custom-rendered row rather than a declarative control. */
 const CUSTOM_RENDER_SETTING_KEYS = [
@@ -380,7 +380,7 @@ describe('settings tree', () => {
         const names = flatten([...(textProcessing?.items ?? [])]).map(row => row.name);
 
         expect(flatten([...(behavior?.items ?? [])]).map(row => row.name)).not.toContain('Trim surrounding whitespace');
-        expect(names).toEqual(['Trim surrounding whitespace', 'Invisible characters', 'Quotes', 'Dashes']);
+        expect(names).toEqual(['Trim surrounding whitespace', 'Invisible characters', 'Accents', 'Quotes', 'Dashes']);
     });
 
     it('puts title fetching above link cleaning', () => {
@@ -463,6 +463,12 @@ describe('settings tree', () => {
         expect(rows[0].render).toBeDefined();
     });
 
+    it('offers accent repair as a toggle that is on by default', () => {
+        const accentsRow = controlRows(tab).find(candidate => candidate.control.key === 'textAccents');
+        expect(accentsRow?.control.type).toBe('toggle');
+        expect(accentsRow?.control.defaultValue).toBe(true);
+    });
+
     it('offers quotes and dashes as plain toggles', () => {
         const quotesRow = controlRows(tab).find(candidate => candidate.control.key === 'textQuotes');
         const dashesRow = controlRows(tab).find(candidate => candidate.control.key === 'textDashes');
@@ -477,9 +483,9 @@ describe('settings tree', () => {
     });
 
     it('shows an example for each character cleanup setting', () => {
-        const rows = flatten(tab.getSettingDefinitions()).filter(row => ['Invisible characters', 'Quotes', 'Dashes'].includes(row.name));
+        const rows = flatten(tab.getSettingDefinitions()).filter(row => ['Invisible characters', 'Accents', 'Quotes', 'Dashes'].includes(row.name));
 
-        expect(rows).toHaveLength(3);
+        expect(rows).toHaveLength(4);
         for (const row of rows) {
             expect(typeof row.desc).toBe('string');
             if (typeof row.desc !== 'string') throw new Error(`${row.name} has no text fallback`);
@@ -488,6 +494,7 @@ describe('settings tree', () => {
 
         const invisible = rows.find(row => row.name === 'Invisible characters');
         expect(invisible?.desc).toContain('U+00A0');
+        expect(rows.find(row => row.name === 'Accents')?.desc).toContain('r\u00E9sum\u00E9, na\u00EFve');
         expect(invisible?.desc).toContain('U+200B');
     });
 

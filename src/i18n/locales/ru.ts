@@ -231,6 +231,10 @@ export const STRINGS_RU: TranslationStrings = {
             invisibleExampleMiddle: 'результат',
             invisibleExampleEnd: ' был хорошим.',
             invisibleExampleAfter: 'Этот результат был хорошим.',
+            accentsName: 'Диакритические знаки',
+            accentsDesc: 'Соединяет с буквами диакритические знаки, которые PDF из LaTeX отделяют от них.',
+            accentsAliases: ['акцент', 'диакритика', 'ударение', 'латех'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'Кавычки',
             quotesDesc: 'Заменяет типографские кавычки и апострофы на прямые.',
             quotesAliases: [
@@ -352,6 +356,7 @@ export const STRINGS_RU: TranslationStrings = {
     pdfModal: {
         furniture: 'Убрать номера страниц',
         singleParagraph: 'Объединить всё в один абзац',
+        accents: 'Соединить отделённые диакритические знаки с буквами',
         description:
             'Перенесённые строки соединяются, разорванные дефисом слова восстанавливаются, лигатуры заменяются обычными буквами, а лишние пробелы удаляются.',
         preview: 'Предпросмотр'

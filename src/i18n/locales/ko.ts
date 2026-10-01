@@ -202,6 +202,10 @@ export const STRINGS_KO: TranslationStrings = {
             invisibleExampleMiddle: '결과',
             invisibleExampleEnd: '는 좋았다.',
             invisibleExampleAfter: '그 결과는 좋았다.',
+            accentsName: '악센트',
+            accentsDesc: 'LaTeX로 만든 PDF에서 글자와 분리된 악센트를 다시 붙입니다.',
+            accentsAliases: ['악센트', '발음 구별 기호', '움라우트'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: '따옴표',
             quotesDesc: '둥근 따옴표와 아포스트로피를 곧은 따옴표로 바꿉니다.',
             quotesAliases: ['따옴표', '큰따옴표', '스마트 따옴표', '아포스트로피', '문장 부호', '타이포그래피', 'ai'],
@@ -286,6 +290,7 @@ export const STRINGS_KO: TranslationStrings = {
     pdfModal: {
         furniture: '페이지 번호 제거',
         singleParagraph: '모두 한 문단으로 합치기',
+        accents: '글자와 분리된 악센트 다시 붙이기',
         description: '줄바꿈된 줄을 다시 잇고, 하이픈으로 나뉜 단어를 복원하고, 합자를 일반 글자로 바꾸고, 불필요한 공백을 제거합니다.',
         preview: '미리보기'
     },

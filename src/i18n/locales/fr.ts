@@ -221,6 +221,10 @@ export const STRINGS_FR: TranslationStrings = {
             invisibleExampleMiddle: 'résultat',
             invisibleExampleEnd: ' était bon.',
             invisibleExampleAfter: 'Le résultat était bon.',
+            accentsName: 'Accents',
+            accentsDesc: 'Rattache à leurs lettres les accents que les PDF produits avec LaTeX en séparent.',
+            accentsAliases: ['accent', 'tréma', 'cédille', 'diacritique', 'latex', 'pdf'],
+            accentsExample: 'd´ej`a vu, na¨ıf',
             quotesName: 'Guillemets',
             quotesDesc: 'Convertit les guillemets courbes et les apostrophes en guillemets droits.',
             quotesAliases: ['guillemet', 'guillemets courbes', 'guillemets droits', 'apostrophe', 'ponctuation', 'typographie', 'ia'],
@@ -306,6 +310,7 @@ export const STRINGS_FR: TranslationStrings = {
     pdfModal: {
         furniture: 'Supprimer les numéros de page',
         singleParagraph: 'Tout regrouper en un seul paragraphe',
+        accents: 'Rattacher les accents séparés de leurs lettres',
         description:
             "Les lignes coupées sont réunies, les mots coupés par un trait d'union réparés, les ligatures converties en lettres simples et les espaces superflus supprimés.",
         preview: 'Aperçu'

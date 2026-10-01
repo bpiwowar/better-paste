@@ -204,6 +204,10 @@ export const STRINGS_ID: TranslationStrings = {
             invisibleExampleMiddle: 'itu',
             invisibleExampleEnd: ' bagus.',
             invisibleExampleAfter: 'Hasil itu bagus.',
+            accentsName: 'Aksen',
+            accentsDesc: 'Menyatukan aksen yang dipisahkan dari hurufnya oleh PDF buatan LaTeX.',
+            accentsAliases: ['aksen', 'diakritik', 'latex', 'pdf'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'Tanda kutip',
             quotesDesc: 'Mengubah tanda kutip melengkung dan apostrof menjadi tanda kutip lurus.',
             quotesAliases: [
@@ -299,6 +303,7 @@ export const STRINGS_ID: TranslationStrings = {
     pdfModal: {
         furniture: 'Hapus nomor halaman',
         singleParagraph: 'Gabungkan semua menjadi satu paragraf',
+        accents: 'Satukan aksen yang terpisah dari hurufnya',
         description:
             'Baris yang terpotong disambung kembali, kata yang terbelah tanda hubung diperbaiki, ligatur diubah menjadi huruf biasa, dan spasi berlebih dihapus.',
         preview: 'Pratinjau'

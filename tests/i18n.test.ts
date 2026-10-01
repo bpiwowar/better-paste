@@ -19,7 +19,7 @@
 import { describe, expect, it } from 'vitest';
 import { aliases, format, LOCALES, plural, strings } from '../src/i18n';
 import { STRINGS_EN } from '../src/i18n/locales/en';
-import { normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from '../src/transforms/typography';
+import { joinSplitAccents, normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from '../src/transforms/typography';
 
 /** The two invisible characters the invisible-characters example puts between its fragments. */
 const NO_BREAK_SPACE = '\u00A0';
@@ -174,6 +174,11 @@ describe('translations', () => {
         // rule, so a language cannot use them as its example pair.
         expect(straightenQuotes(text.quotesExample).changed, 'quotes').toBe(true);
         expect(straightenDashes(text.dashesExample).changed, 'dashes').toBe(true);
+        // Every accent in the example joins its letter, none is left behind
+        expect(joinSplitAccents(text.accentsExample).text, 'accents').not.toMatch(
+            /[\u00B4\u02DD\u02C6\u00A8\u02DC\u00B8\u02C7\u02D8\u02DA\u02DB\u02D9`^~\u0131]/
+        );
+        expect(joinSplitAccents(text.accentsExample).changed, 'accents').toBe(true);
     });
 });
 

@@ -37,6 +37,7 @@ export const DEFAULT_SETTINGS: BetterPasteSettings = {
     imageLastClass: '',
     pdfLastFurniture: true,
     pdfLastSingleParagraph: false,
+    pdfLastAccents: true,
     imageNameTemplate: DEFAULT_IMAGE_NAME_TEMPLATE,
 
     noteProperty: 'bp',
@@ -49,6 +50,7 @@ export const DEFAULT_SETTINGS: BetterPasteSettings = {
 
     textTrim: true,
     textInvisible: true,
+    textAccents: true,
     textQuotes: false,
     textDashes: false,
 

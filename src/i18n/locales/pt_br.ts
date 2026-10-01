@@ -231,6 +231,10 @@ export const STRINGS_PT_BR: TranslationStrings = {
             invisibleExampleMiddle: 'resultado',
             invisibleExampleEnd: ' ficou bom.',
             invisibleExampleAfter: 'O resultado ficou bom.',
+            accentsName: 'Acentos',
+            accentsDesc: 'Junta às letras os acentos que PDFs feitos com LaTeX separam delas.',
+            accentsAliases: ['acento', 'til', 'cedilha', 'diacrítico', 'latex', 'pdf'],
+            accentsExample: 'informa¸c˜ao, voc^e',
             quotesName: 'Aspas',
             quotesDesc: 'Converte as aspas curvas e os apóstrofos em aspas retas.',
             quotesAliases: ['aspas', 'aspas curvas', 'aspas retas', 'apóstrofo', 'pontuação', 'tipografia', 'ia'],
@@ -326,6 +330,7 @@ export const STRINGS_PT_BR: TranslationStrings = {
     pdfModal: {
         furniture: 'Remover números de página',
         singleParagraph: 'Juntar tudo em um único parágrafo',
+        accents: 'Juntar os acentos separados das letras',
         description:
             'As linhas quebradas são reunidas, as palavras divididas por hífen são reparadas, as ligaduras viram letras normais e os espaços extras são removidos.',
         preview: 'Pré-visualização'

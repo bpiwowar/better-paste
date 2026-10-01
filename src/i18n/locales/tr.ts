@@ -210,6 +210,10 @@ export const STRINGS_TR: TranslationStrings = {
             invisibleExampleMiddle: 'gayet',
             invisibleExampleEnd: ' iyiydi.',
             invisibleExampleAfter: 'Sonuç gayet iyiydi.',
+            accentsName: 'Aksanlar',
+            accentsDesc: 'LaTeX ile hazırlanmış PDF’lerin harflerinden ayırdığı aksan işaretlerini birleştirir.',
+            accentsAliases: ['aksan', 'şapka', 'çengel', 'latex', 'pdf'],
+            accentsExample: 'de˘gi¸sim, ¸cok',
             quotesName: 'Tırnak işaretleri',
             quotesDesc: 'Kıvrık tırnakları ve kesme işaretlerini düz tırnağa dönüştürür.',
             quotesAliases: [
@@ -305,6 +309,7 @@ export const STRINGS_TR: TranslationStrings = {
     pdfModal: {
         furniture: 'Sayfa numaralarını kaldır',
         singleParagraph: 'Tümünü tek paragrafta birleştir',
+        accents: 'Harflerinden ayrılmış aksanları birleştir',
         description:
             'Bölünmüş satırlar birleştirilir, tire ile bölünen sözcükler onarılır, ligatürler düz harflere çevrilir ve fazla boşluklar kaldırılır.',
         preview: 'Önizleme'

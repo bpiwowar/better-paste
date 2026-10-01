@@ -221,6 +221,10 @@ export const STRINGS_AR: TranslationStrings = {
             invisibleExampleMiddle: 'النتيجة',
             invisibleExampleEnd: ' جيدة.',
             invisibleExampleAfter: 'كانت النتيجة جيدة.',
+            accentsName: 'علامات التشكيل',
+            accentsDesc: 'يدمج علامات التشكيل التي تفصلها ملفات PDF المنشأة بـ LaTeX عن حروفها.',
+            accentsAliases: ['تشكيل', 'علامة', 'لاتك'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'علامات الاقتباس',
             quotesDesc: 'يحوّل علامات الاقتباس المنحنية والفواصل العليا إلى مستقيمة.',
             quotesAliases: ['علامة اقتباس', 'تنصيص', 'اقتباس منحني', 'اقتباس مستقيم', 'فاصلة عليا', 'ترقيم', 'طباعة', 'ذكاء اصطناعي'],
@@ -340,6 +344,7 @@ export const STRINGS_AR: TranslationStrings = {
     pdfModal: {
         furniture: 'إزالة أرقام الصفحات',
         singleParagraph: 'دمج الكل في فقرة واحدة',
+        accents: 'دمج علامات التشكيل المنفصلة عن حروفها',
         description:
             'يُعاد وصل الأسطر الملتفّة، وتُصلَح الكلمات المقسومة بشرطة، وتُحوَّل الحروف المركّبة إلى حروف عادية، وتُزال المسافات الزائدة.',
         preview: 'معاينة'

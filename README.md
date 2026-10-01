@@ -275,6 +275,7 @@ Start a line with `!` to turn off the built-in removals for one site:
 
 - **Trim surrounding whitespace**: removes blank lines and stray spaces around the paste. Blank lines in the middle stay.
 - **Invisible characters**: removes zero-width spaces and turns non-breaking spaces into normal ones. Emoji, Persian and Arabic joiners, and CJK spacing are left alone.
+- **Accents**: repairs text copied from PDFs typeset with LaTeX, where each accent arrives as a separate character in front of its letter, so `d´etecter` becomes `détecter` and `na¨ıve` becomes `naïve`. On by default. Code, math, links and frontmatter are left alone, and a backtick, caret or tilde only counts as an accent inside a word.
 - **Quotes**: turns curly quotes and apostrophes into straight ones, so `“don’t”` becomes `"don't"`. Off by default, so your typography is kept until you opt in.
 - **Dashes**: turns en and em dashes into hyphens. Also off by default. Quotes and dashes inside code, links and note names are left alone.
 

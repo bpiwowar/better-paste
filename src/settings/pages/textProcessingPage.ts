@@ -19,7 +19,7 @@
 import type { SettingGroupItem } from 'obsidian';
 import { DEFAULT_SETTINGS } from '../defaults';
 import { aliases, format, strings } from '../../i18n';
-import { straightenDashes, straightenQuotes } from '../../transforms/typography';
+import { joinSplitAccents, straightenDashes, straightenQuotes } from '../../transforms/typography';
 import { toggle } from './context';
 
 /** The Unicode code points the example draws in place of the characters they stand for. */
@@ -80,6 +80,12 @@ export function createTextProcessingDefinitions(): SettingGroupItem[] {
             aliases: aliases(source => source.settings.text.invisibleAliases),
             control: { type: 'toggle', key: 'textInvisible', defaultValue: DEFAULT_SETTINGS.textInvisible }
         },
+        toggle(
+            'textAccents',
+            text.accentsName,
+            withStyleExample(text.accentsDesc, ruleExample(text.accentsExample, joinSplitAccents)),
+            aliases(source => source.settings.text.accentsAliases)
+        ),
         toggle(
             'textQuotes',
             text.quotesName,

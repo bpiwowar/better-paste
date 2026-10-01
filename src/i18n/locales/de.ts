@@ -231,6 +231,10 @@ export const STRINGS_DE: TranslationStrings = {
             invisibleExampleMiddle: 'Ergebnis',
             invisibleExampleEnd: ' war gut.',
             invisibleExampleAfter: 'Das Ergebnis war gut.',
+            accentsName: 'Akzente',
+            accentsDesc: 'Fügt Akzente wieder an ihre Buchstaben, die PDFs aus LaTeX davon abtrennen.',
+            accentsAliases: ['Akzent', 'Umlaut', 'diakritisch', 'LaTeX', 'PDF'],
+            accentsExample: 'sch¨on, M¨adchen',
             quotesName: 'Anführungszeichen',
             quotesDesc: 'Wandelt typografische Anführungszeichen und Apostrophe in gerade um.',
             quotesAliases: [
@@ -335,6 +339,7 @@ export const STRINGS_DE: TranslationStrings = {
     pdfModal: {
         furniture: 'Seitenzahlen entfernen',
         singleParagraph: 'Alles zu einem Absatz verbinden',
+        accents: 'Abgetrennte Akzente mit ihren Buchstaben verbinden',
         description:
             'Umbrochene Zeilen werden wieder verbunden, getrennte Wörter repariert, Ligaturen in einfache Buchstaben umgewandelt und überflüssige Leerzeichen entfernt.',
         preview: 'Vorschau'

@@ -220,6 +220,82 @@ export function straightenQuotes(input: string, protect: readonly ProtectedRange
 }
 
 /**
+ * The spacing accents LaTeX PDFs put in front of a letter, mapped to the combining mark
+ * that joins them to it. The last three are the ASCII look-alikes the old Computer Modern
+ * fonts extract as, which also are Markdown, math and path syntax.
+ */
+const COMBINING_ACCENTS: Record<string, string> = {
+    '\u00B4': '\u0301',
+    '\u02DD': '\u030B',
+    '\u02C6': '\u0302',
+    '\u00A8': '\u0308',
+    '\u02DC': '\u0303',
+    '\u00B8': '\u0327',
+    '\u02C7': '\u030C',
+    '\u02D8': '\u0306',
+    '\u02DA': '\u030A',
+    '\u02DB': '\u0328',
+    '\u02D9': '\u0307',
+    '`': '\u0300',
+    '^': '\u0302',
+    '~': '\u0303'
+};
+
+/**
+ * A spacing accent glued to the letter after it. Whether an ASCII look-alike counts
+ * depends on its neighbours, which the replacement checks, since lookbehinds are not
+ * available on older iOS.
+ */
+const SPLIT_ACCENT = new RegExp('([\\u00B4\\u02DD\\u02C6\\u00A8\\u02DC\\u00B8\\u02C7\\u02D8\\u02DA\\u02DB\\u02D9`^~])(\\p{L})', 'gu');
+
+/** A backtick between two letters, which no code span written on purpose begins or ends with. */
+const IN_WORD_BACKTICK = new RegExp('(\\p{L})`(?=\\p{L})', 'gu');
+
+/** Inline and block TeX math, where a caret or tilde between letters is notation. */
+const DOLLAR_MATH = new RegExp('\\$\\$[\\s\\S]*?\\$\\$|\\$[^$\\n]+\\$', 'g');
+
+/** The character ending right before `offset`, a surrogate pair counted as one. */
+function characterBefore(input: string, offset: number): string {
+    const low = input.charCodeAt(offset - 1);
+    return low >= 0xdc00 && low <= 0xdfff ? input.slice(offset - 2, offset) : input.slice(offset - 1, offset);
+}
+
+/**
+ * Joins accents that PDFs typeset with LaTeX split off their letters, so d\u00B4etecter
+ * becomes d\u00E9tecter. The dotless i and j those fonts accent stand in for the plain
+ * letters. A pair that has no precomposed character, or an accent that follows its
+ * letter, is ambiguous and stays as it is.
+ *
+ * A dedicated accent character always qualifies. An ASCII look-alike only does inside a
+ * word, as in apr`es, or as a grave accent opening a one-letter word, the French and
+ * Portuguese a with grave, so a backtick, caret or tilde that is syntax is never touched.
+ */
+export function joinSplitAccents(input: string, protect: readonly ProtectedRange[] = []): TypographyResult {
+    // A grave accent inside a word cannot delimit code, yet two of them in a paragraph
+    // pair up as a code span and would protect each other. Masking them first, with a
+    // placeholder of the same length, keeps the ranges aligned with the input.
+    const codeSource = input.replace(IN_WORD_BACKTICK, '$1x');
+    const protectedRanges = [...markdownCodeRanges(codeSource), ...protect, ...markdownSyntaxRanges(input)];
+    const mathRanges = syntaxRanges(input, [DOLLAR_MATH]);
+
+    const text = input.replace(SPLIT_ACCENT, (match, accent: string, letter: string, offset: number) => {
+        const end = offset + match.length;
+        if (overlapsRange(protectedRanges, offset, end)) return match;
+        if (/[`^~]/.test(accent)) {
+            const inWord = /\p{L}/u.test(characterBefore(input, offset));
+            const graveWord =
+                accent === '`' && !/[\p{L}\p{N}`]/u.test(characterBefore(input, offset)) && !/[\p{L}\p{N}`]/u.test(input.charAt(end));
+            if (!inWord && !graveWord) return match;
+            if (overlapsRange(mathRanges, offset, end)) return match;
+        }
+        const base = letter === '\u0131' ? 'i' : letter === '\u0237' ? 'j' : letter;
+        const composed = (base + COMBINING_ACCENTS[accent]).normalize('NFC');
+        return [...composed].length === 1 ? composed : match;
+    });
+    return { text, changed: text !== input };
+}
+
+/**
  * Turns em and en dashes into hyphens, including the ones that join ranges.
  *
  * Runs after the terminal rule, not before it. A hyphen is a list marker, so converting

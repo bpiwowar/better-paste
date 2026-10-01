@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { frontmatterRanges, normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from './typography';
+import { frontmatterRanges, joinSplitAccents, normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from './typography';
 import { stripAnsi } from './ansi';
 import { buildUrlCleanupOptions, cleanUrlsInText, httpUrlRanges } from './urlCleanup';
 import { imageReferenceRanges } from '../paste/imageReferences';
@@ -54,6 +54,10 @@ export function runTextPipeline(input: string, settings: BetterPasteSettings): T
         text = stripAnsi(text);
         text = normalizeInvisibleCharacters(text, httpUrlRanges(text)).text;
     }
+
+    // After the invisible characters, so a zero-width space cannot keep an accent apart
+    // from its letter
+    if (settings.textAccents) text = joinSplitAccents(text, httpUrlRanges(text)).text;
 
     if (settings.linkEnabled) {
         // Image references are off limits to URL cleaning whether or not they are

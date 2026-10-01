@@ -17,7 +17,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from '../src/transforms/typography';
+import { joinSplitAccents, normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from '../src/transforms/typography';
 import { httpUrlRanges } from '../src/transforms/urlCleanup';
 
 // Written as escapes so this file stays plain ASCII
@@ -301,5 +301,66 @@ describe('normalizeInvisibleCharacters', () => {
     it('handles a realistic assistant paragraph', () => {
         const input = `The result${NBSP}${EM_DASH}${NBSP}which nobody expected${NBSP}${EM_DASH}${NBSP}was fine.${ZWSP}`;
         expect(dashes(clean(input))).toBe('The result - which nobody expected - was fine.');
+    });
+});
+
+describe('joinSplitAccents', () => {
+    // The spacing accents LaTeX PDFs paste in front of their letters
+    const ACUTE = '\u00B4';
+    const CIRCUMFLEX = '\u02C6';
+    const DIAERESIS = '\u00A8';
+    const CEDILLA = '\u00B8';
+    const TILDE = '\u02DC';
+    const CARON = '\u02C7';
+    const OGONEK = '\u02DB';
+    const DOTLESS_I = '\u0131';
+
+    /** Applies the rule the way the pipeline does, with pasted URLs protected. */
+    const accents = (text: string): string => joinSplitAccents(text, httpUrlRanges(text)).text;
+
+    it('repairs the sentence from the issue', () => {
+        const input =
+            `Cette approche permet de d${ACUTE}etecter les ${ACUTE}ev${ACUTE}enements rares \`a l\u2019${ACUTE}echelle du ` +
+            `r${ACUTE}eseau, m${CIRCUMFLEX}eme apr\`es une r${ACUTE}e${ACUTE}evaluation na${DIAERESIS}${DOTLESS_I}ve.`;
+
+        expect(accents(input)).toBe(
+            'Cette approche permet de d\u00E9tecter les \u00E9v\u00E9nements rares \u00E0 l\u2019\u00E9chelle du ' +
+                'r\u00E9seau, m\u00EAme apr\u00E8s une r\u00E9\u00E9valuation na\u00EFve.'
+        );
+    });
+
+    it('accents the dotless i and j as plain letters', () => {
+        expect(accents(`na${DIAERESIS}${DOTLESS_I}f, ${CIRCUMFLEX}${DOTLESS_I}le, ${CARON}\u0237`)).toBe('na\u00EFf, \u00EEle, \u01F0');
+    });
+
+    it('joins the other accents LaTeX fonts split off', () => {
+        expect(accents(`fran${CEDILLA}cais, a${TILDE}no, ${CARON}cesky, wi${OGONEK}ecej`)).toBe('fran\u00E7ais, a\u00F1o, \u010Desky, wi\u0119cej');
+    });
+
+    it('joins ASCII look-alikes only inside a word', () => {
+        expect(accents('voc^e, a~no, apr`es')).toBe('voc\u00EA, a\u00F1o, apr\u00E8s');
+        expect(accents('2^3, x ^ y, a ~ b, ~/notes, ^block')).toBe('2^3, x ^ y, a ~ b, ~/notes, ^block');
+    });
+
+    it('leaves pairs without a precomposed character unchanged', () => {
+        expect(accents(`${ACUTE}q, x^q, b~c`)).toBe(`${ACUTE}q, x^q, b~c`);
+    });
+
+    it('leaves accents that follow their letter or stand alone', () => {
+        expect(accents(`caf e${ACUTE} and ${ACUTE} alone`)).toBe(`caf e${ACUTE} and ${ACUTE} alone`);
+    });
+
+    it('keeps code, math, frontmatter, links and addresses untouched', () => {
+        expect(accents('Run `a` and `a b` or `ls`.')).toBe('Run `a` and `a b` or `ls`.');
+        expect(accents(`\`\`\`\nr${ACUTE}esum${ACUTE}e apr\`es\n\`\`\``)).toBe(`\`\`\`\nr${ACUTE}esum${ACUTE}e apr\`es\n\`\`\``);
+        expect(accents(`---\ntitle: r${ACUTE}esum${ACUTE}e\n---\nr${ACUTE}esum${ACUTE}e`)).toBe(
+            `---\ntitle: r${ACUTE}esum${ACUTE}e\n---\nr\u00E9sum\u00E9`
+        );
+        expect(accents('$a^i + n~a$ and v^ia')).toBe('$a^i + n~a$ and v\u00EEa');
+        expect(accents(`[[r${ACUTE}esum${ACUTE}e]] https://example.com/a~no`)).toBe(`[[r${ACUTE}esum${ACUTE}e]] https://example.com/a~no`);
+    });
+
+    it('does not let in-word grave accents pair into a code span', () => {
+        expect(accents('d`ej`a vu')).toBe('d\u00E8j\u00E0 vu');
     });
 });

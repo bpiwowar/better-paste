@@ -324,6 +324,13 @@ describe('runTextPipeline', () => {
         expect(result.changed).toBe(true);
     });
 
+    it('joins accents split off by LaTeX PDFs unless turned off', () => {
+        const input = 'r\u00B4esum\u00B4e';
+        expect(normalizeSettings({}).textAccents).toBe(true);
+        expect(runTextPipeline(input, DEFAULT_SETTINGS).text).toBe('r\u00E9sum\u00E9');
+        expect(runTextPipeline(input, { ...DEFAULT_SETTINGS, textAccents: false }).text).toBe(input);
+    });
+
     it('normalises AI typography before the other rules see it', () => {
         // A no-break space is not whitespace to a regular expression, so if the AI rule did
         // not run first the terminal rule would treat this line as non-blank

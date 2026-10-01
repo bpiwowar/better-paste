@@ -199,6 +199,10 @@ export const STRINGS_ZH_TW: TranslationStrings = {
             invisibleExampleMiddle: 'OK',
             invisibleExampleEnd: '。',
             invisibleExampleAfter: '結果是 OK。',
+            accentsName: '重音符號',
+            accentsDesc: '將 LaTeX 產生的 PDF 中與字母分離的重音符號重新合併。',
+            accentsAliases: ['重音', '變音符號', '附加符號'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: '引號',
             quotesDesc: '把彎引號和撇號換成直引號。',
             quotesAliases: ['引號', '彎引號', '直引號', '智慧引號', '撇號', '標點', '排版', 'ai'],
@@ -281,6 +285,7 @@ export const STRINGS_ZH_TW: TranslationStrings = {
     pdfModal: {
         furniture: '移除頁碼',
         singleParagraph: '合併為一個段落',
+        accents: '合併與字母分離的重音符號',
         description: '重新連接折行、修復被連字號拆開的單字、將合字轉換為一般字母，並移除多餘的空格。',
         preview: '預覽'
     },

@@ -230,6 +230,10 @@ export const STRINGS_ES: TranslationStrings = {
             invisibleExampleMiddle: 'resultado',
             invisibleExampleEnd: ' fue bueno.',
             invisibleExampleAfter: 'El resultado fue bueno.',
+            accentsName: 'Acentos',
+            accentsDesc: 'Une a sus letras los acentos que los PDF hechos con LaTeX separan de ellas.',
+            accentsAliases: ['acento', 'tilde', 'diacrítico', 'latex', 'pdf'],
+            accentsExample: 'informaci´on, a˜no',
             quotesName: 'Comillas',
             quotesDesc: 'Convierte las comillas tipográficas y los apóstrofos en comillas rectas.',
             quotesAliases: ['comillas', 'comillas tipográficas', 'comillas rectas', 'apóstrofo', 'puntuación', 'tipografía', 'ia'],
@@ -316,6 +320,7 @@ export const STRINGS_ES: TranslationStrings = {
     pdfModal: {
         furniture: 'Quitar números de página',
         singleParagraph: 'Unir todo en un solo párrafo',
+        accents: 'Unir los acentos separados de sus letras',
         description:
             'Las líneas cortadas se vuelven a unir, las palabras divididas con guion se reparan, las ligaduras se convierten en letras normales y los espacios sobrantes se eliminan.',
         preview: 'Vista previa'

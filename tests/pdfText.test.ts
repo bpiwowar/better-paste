@@ -26,6 +26,12 @@ const HYPHEN = '\u2010';
 const EM_DASH = '\u2014';
 
 describe('cleanPdfText', () => {
+    it('joins accents split off by LaTeX fonts before repairing hyphens', () => {
+        const input = ['Une r\u00B4e\u00B4evaluation na\u00A8\u0131ve des \u00B4ev\u00B4ene-', 'ments rares.'].join('\n');
+
+        expect(cleanPdfText(input).text).toBe('Une r\u00E9\u00E9valuation na\u00EFve des \u00E9v\u00E9nements rares.');
+    });
+
     it('rejoins a hyphenated paragraph and drops the layout hyphens', () => {
         const input = [
             'The findings suggest that long-term expo-',
@@ -261,7 +267,15 @@ describe('cleanPdfText options', () => {
     const options = (overrides: Partial<Parameters<typeof cleanPdfText>[1]> = {}) => ({
         removeFurniture: false,
         singleParagraph: false,
+        joinAccents: false,
         ...overrides
+    });
+
+    it('joins split accents only when asked to', () => {
+        const input = 'r\u00B4esum\u00B4e';
+
+        expect(cleanPdfText(input, options({ joinAccents: true })).text).toBe('r\u00E9sum\u00E9');
+        expect(cleanPdfText(input, options()).changed).toBe(false);
     });
 
     it('removes a page number line and keeps the paragraphs apart', () => {

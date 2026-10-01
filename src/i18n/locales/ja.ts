@@ -215,6 +215,10 @@ export const STRINGS_JA: TranslationStrings = {
             invisibleExampleMiddle: 'OK',
             invisibleExampleEnd: ' だった。',
             invisibleExampleAfter: '結果は OK だった。',
+            accentsName: 'アクセント記号',
+            accentsDesc: 'LaTeX で作成された PDF で文字から分かれたアクセント記号を結合します。',
+            accentsAliases: ['アクセント', 'ダイアクリティカルマーク', 'ウムラウト'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: '引用符',
             quotesDesc: '曲線引用符とアポストロフィをまっすぐな引用符に変えます。',
             quotesAliases: ['引用符', 'スマート引用符', 'クォーテーション', 'アポストロフィ', '句読点', 'タイポグラフィ', 'ai'],
@@ -309,6 +313,7 @@ export const STRINGS_JA: TranslationStrings = {
     pdfModal: {
         furniture: 'ページ番号を削除',
         singleParagraph: 'すべてを1つの段落にまとめる',
+        accents: '文字から分かれたアクセント記号を結合する',
         description:
             '折り返された行をつなぎ直し、ハイフンで分割された単語を修復し、合字を通常の文字に変換し、余分なスペースを取り除きます。',
         preview: 'プレビュー'

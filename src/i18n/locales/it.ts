@@ -223,6 +223,10 @@ export const STRINGS_IT: TranslationStrings = {
             invisibleExampleMiddle: 'risultato',
             invisibleExampleEnd: ' andava bene.',
             invisibleExampleAfter: 'Il risultato andava bene.',
+            accentsName: 'Accenti',
+            accentsDesc: 'Riunisce alle loro lettere gli accenti che i PDF creati con LaTeX ne separano.',
+            accentsAliases: ['accento', 'diacritico', 'latex', 'pdf'],
+            accentsExample: 'citt`a, perch´e',
             quotesName: 'Virgolette',
             quotesDesc: 'Converte le virgolette curve e gli apostrofi in virgolette dritte.',
             quotesAliases: ['virgolette', 'virgolette curve', 'virgolette dritte', 'apostrofo', 'punteggiatura', 'tipografia', 'ia'],
@@ -309,6 +313,7 @@ export const STRINGS_IT: TranslationStrings = {
     pdfModal: {
         furniture: 'Rimuovi i numeri di pagina',
         singleParagraph: 'Unisci tutto in un solo paragrafo',
+        accents: 'Riunisci gli accenti separati dalle loro lettere',
         description:
             'Le righe spezzate vengono riunite, le parole divise dal trattino riparate, le legature convertite in lettere normali e gli spazi in eccesso rimossi.',
         preview: 'Anteprima'

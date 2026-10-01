@@ -201,6 +201,10 @@ export const STRINGS_TH: TranslationStrings = {
             invisibleExampleMiddle: 'OK',
             invisibleExampleEnd: ' แล้ว',
             invisibleExampleAfter: 'ผลลัพธ์คือ OK แล้ว',
+            accentsName: 'เครื่องหมายเสริมอักษร',
+            accentsDesc: 'รวมเครื่องหมายเสริมอักษรที่ PDF ซึ่งสร้างด้วย LaTeX แยกออกจากตัวอักษรกลับเข้าด้วยกัน',
+            accentsAliases: ['เครื่องหมายเน้นเสียง', 'สำเนียง'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'อัญประกาศ',
             quotesDesc: 'เปลี่ยนอัญประกาศโค้งและอะพอสทรอฟีเป็นอัญประกาศตรง',
             quotesAliases: [
@@ -294,6 +298,7 @@ export const STRINGS_TH: TranslationStrings = {
     pdfModal: {
         furniture: 'ลบเลขหน้า',
         singleParagraph: 'รวมทั้งหมดเป็นย่อหน้าเดียว',
+        accents: 'รวมเครื่องหมายเสริมอักษรที่แยกจากตัวอักษร',
         description: 'ต่อบรรทัดที่ถูกตัดกลับเข้าด้วยกัน ซ่อมคำที่ถูกแบ่งด้วยยัติภังค์ แปลงอักษรควบเป็นตัวอักษรปกติ และลบช่องว่างส่วนเกิน',
         preview: 'แสดงตัวอย่าง'
     },

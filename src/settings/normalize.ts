@@ -162,6 +162,7 @@ export function normalizeSettings(raw: unknown): BetterPasteSettings {
 
         textTrim: asBoolean(data.textTrim, defaults.textTrim),
         textInvisible: asBoolean(data.textInvisible, defaults.textInvisible),
+        textAccents: asBoolean(data.textAccents, defaults.textAccents),
         textQuotes: asBoolean(data.textQuotes, defaults.textQuotes),
         textDashes: asBoolean(data.textDashes, defaults.textDashes),
 
@@ -171,7 +172,8 @@ export function normalizeSettings(raw: unknown): BetterPasteSettings {
         lastShownVersion: normalizeVersion(data.lastShownVersion),
 
         pdfLastFurniture: asBoolean(data.pdfLastFurniture, defaults.pdfLastFurniture),
-        pdfLastSingleParagraph: asBoolean(data.pdfLastSingleParagraph, defaults.pdfLastSingleParagraph)
+        pdfLastSingleParagraph: asBoolean(data.pdfLastSingleParagraph, defaults.pdfLastSingleParagraph),
+        pdfLastAccents: asBoolean(data.pdfLastAccents, defaults.pdfLastAccents)
     };
 }
 

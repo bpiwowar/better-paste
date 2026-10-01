@@ -219,6 +219,10 @@ export const STRINGS_PL: TranslationStrings = {
             invisibleExampleMiddle: 'wynik',
             invisibleExampleEnd: ' był dobry.',
             invisibleExampleAfter: 'Ten wynik był dobry.',
+            accentsName: 'Akcenty',
+            accentsDesc: 'Łączy z literami znaki diakrytyczne, które pliki PDF z LaTeX-a od nich oddzielają.',
+            accentsAliases: ['akcent', 'ogonek', 'diakrytyk', 'latex', 'pdf'],
+            accentsExample: 'r´o˙zny, wi˛ecej',
             quotesName: 'Cudzysłowy',
             quotesDesc: 'Zamienia cudzysłowy drukarskie i apostrofy na proste.',
             quotesAliases: ['cudzysłów', 'cudzysłowy drukarskie', 'cudzysłowy proste', 'apostrof', 'interpunkcja', 'typografia', 'ai'],
@@ -330,6 +334,7 @@ export const STRINGS_PL: TranslationStrings = {
     pdfModal: {
         furniture: 'Usuń numery stron',
         singleParagraph: 'Połącz wszystko w jeden akapit',
+        accents: 'Połącz oddzielone akcenty z literami',
         description:
             'Zawinięte wiersze są łączone, wyrazy przedzielone łącznikiem naprawiane, ligatury zamieniane na zwykłe litery, a zbędne spacje usuwane.',
         preview: 'Podgląd'

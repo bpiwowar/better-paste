@@ -211,6 +211,10 @@ export const STRINGS_FA: TranslationStrings = {
             invisibleExampleMiddle: 'نتیجه',
             invisibleExampleEnd: ' خوب بود.',
             invisibleExampleAfter: 'آن نتیجه خوب بود.',
+            accentsName: 'اعراب',
+            accentsDesc: 'اعرابی را که فایل‌های PDF ساخته‌شده با LaTeX از حروفشان جدا می‌کنند، به حروف می‌چسباند.',
+            accentsAliases: ['اعراب', 'علامت', 'لاتک'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'گیومه',
             quotesDesc: 'گیومه‌های خمیده و آپاستروف‌ها را به گیومه ساده تبدیل می‌کند.',
             quotesAliases: ['گیومه', 'نقل قول', 'گیومه خمیده', 'گیومه ساده', 'آپاستروف', 'نشانه‌گذاری', 'تایپوگرافی', 'هوش مصنوعی'],
@@ -297,6 +301,7 @@ export const STRINGS_FA: TranslationStrings = {
     pdfModal: {
         furniture: 'حذف شماره صفحه‌ها',
         singleParagraph: 'ادغام همه در یک پاراگراف',
+        accents: 'چسباندن اعراب جداشده به حروفشان',
         description:
             'خط‌های شکسته دوباره به هم می‌پیوندند، واژه‌های جداشده با خط تیره ترمیم می‌شوند، حروف ترکیبی به حروف ساده تبدیل می‌شوند و فاصله‌های اضافی حذف می‌شوند.',
         preview: 'پیش‌نمایش'

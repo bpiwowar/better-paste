@@ -231,6 +231,10 @@ export const STRINGS_UK: TranslationStrings = {
             invisibleExampleMiddle: 'результат',
             invisibleExampleEnd: ' був добрий.',
             invisibleExampleAfter: 'Цей результат був добрий.',
+            accentsName: 'Діакритичні знаки',
+            accentsDesc: 'Зʼєднує з літерами діакритичні знаки, які PDF з LaTeX відокремлюють від них.',
+            accentsAliases: ['акцент', 'діакритика', 'наголос', 'латех'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'Лапки',
             quotesDesc: 'Замінює друкарські лапки й апострофи на прямі.',
             quotesAliases: [
@@ -352,6 +356,7 @@ export const STRINGS_UK: TranslationStrings = {
     pdfModal: {
         furniture: 'Прибрати номери сторінок',
         singleParagraph: "Об'єднати все в один абзац",
+        accents: 'Зʼєднати відокремлені діакритичні знаки з літерами',
         description:
             "Перенесені рядки з'єднуються, розірвані дефісом слова відновлюються, лігатури замінюються звичайними літерами, а зайві пробіли вилучаються.",
         preview: 'Попередній перегляд'

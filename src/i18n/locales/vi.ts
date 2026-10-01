@@ -216,6 +216,10 @@ export const STRINGS_VI: TranslationStrings = {
             invisibleExampleMiddle: 'quả',
             invisibleExampleEnd: ' rất tốt.',
             invisibleExampleAfter: 'Kết quả rất tốt.',
+            accentsName: 'Dấu phụ',
+            accentsDesc: 'Ghép lại các dấu phụ mà PDF tạo bằng LaTeX tách khỏi chữ cái.',
+            accentsAliases: ['dấu', 'dấu phụ', 'trọng âm'],
+            accentsExample: 'r´esum´e, na¨ıve',
             quotesName: 'Dấu nháy',
             quotesDesc: 'Chuyển dấu nháy cong và dấu lược thành dấu nháy thẳng.',
             quotesAliases: ['dấu nháy', 'dấu ngoặc kép', 'dấu nháy cong', 'dấu nháy thẳng', 'dấu lược', 'dấu câu', 'kiểu chữ', 'ai'],
@@ -300,6 +304,7 @@ export const STRINGS_VI: TranslationStrings = {
     pdfModal: {
         furniture: 'Xóa số trang',
         singleParagraph: 'Gộp tất cả thành một đoạn văn',
+        accents: 'Ghép các dấu phụ bị tách khỏi chữ cái',
         description:
             'Các dòng bị ngắt được nối lại, từ bị tách bởi dấu gạch nối được sửa, chữ cái dính liền thành một ký tự được tách rời và khoảng trắng thừa bị xóa.',
         preview: 'Xem trước'

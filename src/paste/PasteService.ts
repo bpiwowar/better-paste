@@ -19,7 +19,7 @@
 import { Notice, parseYaml } from 'obsidian';
 import type { Editor, EditorPosition, MarkdownFileInfo, MarkdownView, TFile } from 'obsidian';
 import { runTextPipeline } from '../transforms';
-import { frontmatterRanges, normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from '../transforms/typography';
+import { frontmatterRanges, joinSplitAccents, normalizeInvisibleCharacters, straightenDashes, straightenQuotes } from '../transforms/typography';
 import { applyCommaPlacement } from '../transforms/textProcessing';
 import type { TextCommaPlacement } from '../transforms/textProcessing';
 import { cleanTerminalText } from '../transforms/terminalText';
@@ -735,6 +735,7 @@ export class PasteService {
         const settings = this.getSettings();
         if (
             !settings.textInvisible &&
+            !settings.textAccents &&
             !settings.textQuotes &&
             !settings.textDashes &&
             !settings.linkEnabled &&
@@ -786,6 +787,7 @@ export class PasteService {
         // Content copied out of a browser arrives as HTML, which is how most people paste
         // an assistant's answer. Without this the character rules would never see it.
         if (settings.textInvisible) text = normalizeInvisibleCharacters(text, httpUrlRanges(text)).text;
+        if (settings.textAccents) text = joinSplitAccents(text, httpUrlRanges(text)).text;
         if (settings.textDashes) text = straightenDashes(text, httpUrlRanges(text)).text;
         if (settings.textQuotes) text = straightenQuotes(text, httpUrlRanges(text)).text;
 

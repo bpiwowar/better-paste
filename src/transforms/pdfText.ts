@@ -19,20 +19,23 @@
 import { cleanTerminalText, endsHyphenated, joinFragments } from './terminalText';
 import type { TerminalCleanupResult } from './terminalText';
 import { markdownCodeRanges } from './markdownRanges';
+import { joinSplitAccents } from './typography';
 import { PDF_MIN_WRAP_WIDTH } from '../settings/constants';
 
 /**
- * The situational choices offered by the PDF cleanup dialog. Each one is a guess only
- * the user can confirm, so none of them runs without being asked for.
+ * The situational choices offered by the PDF cleanup dialog. The structural ones are
+ * guesses only the user can confirm, so they never run without being asked for.
  */
 export interface PdfCleanupOptions {
     /** Removes page number lines together with the page break around them. */
     removeFurniture: boolean;
     /** Joins the whole selection into one paragraph. */
     singleParagraph: boolean;
+    /** Joins accents that LaTeX fonts put in front of their letters. */
+    joinAccents: boolean;
 }
 
-const DEFAULT_OPTIONS: PdfCleanupOptions = { removeFurniture: false, singleParagraph: false };
+const DEFAULT_OPTIONS: PdfCleanupOptions = { removeFurniture: false, singleParagraph: false, joinAccents: true };
 
 /**
  * The Latin ligature glyphs publisher fonts put on the clipboard, ff fi fl ffi ffl and
@@ -202,6 +205,10 @@ export function cleanPdfText(input: string, options: PdfCleanupOptions = DEFAULT
     let text = input.normalize('NFC').replace(/\r\n?/g, '\n');
 
     text = text.replace(/[\uFB00-\uFB06]/g, glyph => LIGATURES[glyph]);
+
+    // LaTeX fonts put accents on the clipboard as spacing characters in front of the
+    // letter instead. Joined here, before the hyphen repair looks at the word ends.
+    if (options.joinAccents) text = joinSplitAccents(text).text;
 
     // A soft hyphen inside a word is dropped, the same way the invisible-character rule
     // treats it on paste. One at a line end stays: the rejoin reads it as wrap evidence

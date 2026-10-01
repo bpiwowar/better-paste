@@ -96,6 +96,8 @@ export interface BetterPasteSettings {
     textTrim: boolean;
     /** Remove zero-width characters and turn no-break spaces into ordinary ones. */
     textInvisible: boolean;
+    /** Join accents that LaTeX PDFs split off their letters. */
+    textAccents: boolean;
     /** Turn curly quotes and apostrophes into straight ones. */
     textQuotes: boolean;
     /** Turn en and em dashes into hyphens. */
@@ -123,4 +125,5 @@ export interface BetterPasteSettings {
     /** The toggles picked in the last PDF cleanup dialog, preselected in the next one. */
     pdfLastFurniture: boolean;
     pdfLastSingleParagraph: boolean;
+    pdfLastAccents: boolean;
 }

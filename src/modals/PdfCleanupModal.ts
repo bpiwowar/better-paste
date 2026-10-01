@@ -24,7 +24,7 @@ import type { PdfCleanupOptions } from '../transforms/pdfText';
 
 /**
  * Previews the PDF cleanup on the selected text and offers the situational choices:
- * page numbers and joining into one paragraph. The preview updates
+ * page numbers, joining into one paragraph and split accents. The preview updates
  * with every toggle, so the effect is visible before anything is applied. Enter applies,
  * Escape applies nothing.
  */
@@ -60,6 +60,13 @@ export class PdfCleanupModal extends Modal {
         new Setting(this.contentEl).setName(text.singleParagraph).addToggle(toggle => {
             toggle.setValue(this.options.singleParagraph).onChange(value => {
                 this.options.singleParagraph = value;
+                this.renderPreview();
+            });
+        });
+
+        new Setting(this.contentEl).setName(text.accents).addToggle(toggle => {
+            toggle.setValue(this.options.joinAccents).onChange(value => {
+                this.options.joinAccents = value;
                 this.renderPreview();
             });
         });

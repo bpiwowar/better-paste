@@ -251,13 +251,15 @@ export default class BetterPastePlugin extends Plugin {
                 text,
                 {
                     removeFurniture: this.settings.pdfLastFurniture,
-                    singleParagraph: this.settings.pdfLastSingleParagraph
+                    singleParagraph: this.settings.pdfLastSingleParagraph,
+                    joinAccents: this.settings.pdfLastAccents
                 },
                 options => {
                     this.pdfModal = null;
                     if (options) {
                         this.settings.pdfLastFurniture = options.removeFurniture;
                         this.settings.pdfLastSingleParagraph = options.singleParagraph;
+                        this.settings.pdfLastAccents = options.joinAccents;
                         void this.saveSettings();
                     }
                     resolve(options);
